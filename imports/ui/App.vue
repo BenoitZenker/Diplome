@@ -1,20 +1,25 @@
 <template>
   <div>
-    <div v-if="!$subReady.Time">Loading...</div>
+    <div v-if="!$subReady.Texts">Loading...</div>
 
     <div v-else>
-      <p>Hello {{hello}},
-        <br>The time is now: {{currentTime}}
-      </p>
-      <button @click="updateTime">Update Time</button>
-      <p>Startup times:</p>
+
+
+      <form @submit.prevent="handleSubmit">
+        <input v-model="text" placeholder="edit me">
+      </form>
+      <p>Message is: {{ text }}</p>
+
+
+      <p>Textes existants dans la BDD:</p>
       <ul>
-        <li v-for="t in TimeCursor">
-          {{t.time}}  -  {{t._id}}
+        <li v-for="t in TextsCursor">
+          {{t.text}}  -  {{t._id}}
         </li>
       </ul>
+
     </div>
-    
+
   </div>
 </template>
 
@@ -22,39 +27,33 @@
 
 
 <script>
-import '/imports/api/time.js';
+import '/imports/api/texts.js';
 
 export default {
   data() {
-    console.log('Sending non-Meteor data to Vue component');
+    //code here...
     return {
-      hello: 'World',
+      text: '',
     }
   },
+
   // Vue Methods
   methods: {  
-    updateTime() {
-      console.log('Calling Meteor Method UpdateTime');
-      Meteor.call('UpdateTime');          // not Meteor reactive
+    handleSubmit(event) {
+      console.log("submit", this.text);
+      Meteor.call('insertText', {text : this.text}); 
     }
   },
+
   // Meteor reactivity
   meteor: {
     // Subscriptions - Errors not reported spelling and capitalization.
     $subscribe: {
-      'Time': []
+      'Texts': [],
     },
-    // A helper function to get the current time
-    currentTime () {
-      console.log('Calculating currentTime');
-      var t = Time.findOne('currentTime') || {};
-      return t.time;
-    },
-    // A Minimongo cursor on the Time collection is added to the Vue instance
-    TimeCursor () {
-      // Here you can use Meteor reactive sources like cursors or reactive vars
-      // as you would in a Blaze template helper
-      return Time.find({}, {
+
+    TextsCursor () {
+      return Texts.find({}, {
         sort: {time: -1}
       })
     },
