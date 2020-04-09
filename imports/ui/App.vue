@@ -4,19 +4,18 @@
 
     <div v-else>
 
-
-      <form @submit.prevent="handleSubmit">
-        <input v-model="text" placeholder="edit me">
-      </form>
       <p>Message is: {{ text }}</p>
 
+      <form @submit.prevent="handleSubmit">
+        <textarea ref ="textInput" @input="handleInput" placeholder="edit me"></textarea>
+      </form>
 
-      <p>Textes existants dans la BDD:</p>
       <ul>
-        <li v-for="t in TextsCursor">
+        <li v-for="t in TextsCursor" @click="setText">
           {{t.text}}  -  {{t._id}}
         </li>
       </ul>
+
 
     </div>
 
@@ -30,19 +29,31 @@
 import '/imports/api/texts.js';
 
 export default {
+
   data() {
     //code here...
     return {
+      isShowingDB: false,
       text: '',
     }
   },
 
   // Vue Methods
   methods: {  
+    handleInput(event) {
+      this.text = event.target.value;
+    },
+
     handleSubmit(event) {
-      console.log("submit", this.text);
       Meteor.call('insertText', {text : this.text}); 
-    }
+    },
+
+    setText(event){
+      this.text = event.target.innerText;
+      this.$refs.textInput.value = this.text;
+    },
+
+
   },
 
   // Meteor reactivity
@@ -67,5 +78,13 @@ export default {
 <style scoped>
   p {
     font-size: 2em;
+  }
+  li {
+    list-style-type: none;
+  }
+  textarea {
+    width:800px;
+    height:200px;
+    resize:none;
   }
 </style>
