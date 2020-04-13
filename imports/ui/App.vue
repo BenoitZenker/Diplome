@@ -1,13 +1,19 @@
 <template>
   <div>
+
+
     <div v-if="!$subReady.Texts">Loading...</div>
 
     <div v-else>
+
+
+     <sketch :text="text"></sketch>
 
       <p>Message is: {{ text }}</p>
 
       <form @submit.prevent="handleSubmit">
         <textarea ref ="textInput" @input="handleInput" placeholder="edit me"></textarea>
+        <input type="submit" value="valider">
       </form>
 
       <ul>
@@ -27,6 +33,7 @@
 
 <script>
 import '/imports/api/texts.js';
+import Sketch from '/imports/ui/sketch.vue'
 
 export default {
 
@@ -37,6 +44,7 @@ export default {
       text: '',
     }
   },
+
 
   // Vue Methods
   methods: {  
@@ -54,6 +62,10 @@ export default {
     },
 
 
+  },
+
+  components: {
+    sketch : Sketch,
   },
 
   // Meteor reactivity
