@@ -5,25 +5,23 @@
 
     <div v-else>
 
-
       <sketch ref="sketch" :text="text" :rules="rules" :nb="nb" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
      
       <form @submit.prevent="handleSubmit">
         
 
-        <textarea ref ="text" @input="handleInputText" placeholder="Texte de départ"></textarea>
+        <textarea v-model="text" placeholder="Texte de départ"></textarea>
 
         <input type="button" name="nouvelle règle" @click="addRule">
         <ul id="rules">
           <li v-for="rule in this.rules" :key="rule.id">
-            <Rule @updateRule="updateRule" :id ="rule.id"></Rule>
+            <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id"></Rule>
           </li>
         </ul>
 
         
-
-        <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" @input="handleSubmitNb">
+        <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" v-model="nb">
 
         <input type="submit" value="valider">
       </form>
@@ -65,14 +63,6 @@ export default {
 
   // Vue Methods
   methods: {  
-    handleInputText(event) {
-      this.text = event.target.value;
-    },
-
-    handleSubmitNb(event) {
-      this.nb = parseInt(event.target.value);
-    },
-
     updateRule(rule, target, id){
 
       this.rules[id].rule = rule;
@@ -83,6 +73,10 @@ export default {
       this.rules.push ({'rule':'', 'target':'', 'id':this.rules.length})
     },
 
+    deleteRule(id){
+      console.log("d")
+      this.rules.splice(id, 1);
+    },
 
 
     handleSubmit(event) {
@@ -101,7 +95,6 @@ export default {
 
     setText(event){
       this.text = event.target.innerText;
-      this.$refs.textInput.value = this.text;
     },
   },
 

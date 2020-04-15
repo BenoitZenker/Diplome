@@ -3,6 +3,7 @@
     <textarea v-model="target" @input="changeRule"></textarea>
     = 
     <textarea v-model="rule" @input="changeRule"></textarea>
+    <input type="button" name="delete" @click="deleteRule">
   </div>
 </template>
 
@@ -24,6 +25,9 @@
     methods: {
       changeRule(event) {
         this.$emit('updateRule', this.rule, this.target, this.id);
+      },
+      deleteRule(event) {
+        this.$emit('deleteRule', this.id);
       },
     }
   }
