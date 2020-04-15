@@ -3,7 +3,7 @@
     <TraductionMap></TraductionMap>
     <NavLeft></NavLeft>
     <NavRight></NavRight>
-    <TextToBitmap></TextToBitmap>
+    <LSystemToBitmap></LSystemToBitmap>
   </div>
 </template>
 
@@ -15,7 +15,7 @@ import '/imports/api/texts.js';
 import NavLeft from '/imports/ui/NavLeft.vue'
 import NavRight from '/imports/ui/NavRight.vue'
 import TraductionMap from '/imports/ui/TraductionMap.vue'
-import TextToBitmap from '/imports/ui/TextToBitmap'
+import LSystemToBitmap from '/imports/ui/LSystemToBitmap/LSystemToBitmap.vue'
 
 export default {
 
@@ -23,7 +23,7 @@ export default {
     TraductionMap : TraductionMap,
     NavLeft : NavLeft,
     NavRight : NavRight,
-    TextToBitmap : TextToBitmap,
+    LSystemToBitmap : LSystemToBitmap,
   },
 }
 
