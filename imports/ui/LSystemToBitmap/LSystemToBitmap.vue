@@ -6,12 +6,24 @@
     <div v-else>
 
 
-     <sketch ref="sketch" :text="text" :rules="rules" :nb="nb" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
+      <sketch ref="sketch" :text="text" :rules="rules" :nb="nb" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
+     
       <form @submit.prevent="handleSubmit">
+        
+
         <textarea ref ="text" @input="handleInputText" placeholder="Texte de départ"></textarea>
-        <textarea ref ="rules" @input="handleInputRules" placeholder="Règles de transformation"></textarea>
-        <input type="number" ref="nb" name="iterations" min="0" max="5" @input="handleSubmitNb">
+
+        <input type="button" name="nouvelle règle" @click="addRule">
+        <ul id="rules">
+          <li v-for="rule in this.rules" :key="rule.id">
+            <Rule @updateRule="updateRule" :id ="rule.id"></Rule>
+          </li>
+        </ul>
+
+        
+
+        <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" @input="handleSubmitNb">
 
         <input type="submit" value="valider">
       </form>
@@ -35,6 +47,7 @@
 <script>
 import '/imports/api/texts.js';
 import Sketch from '/imports/ui/LSystemToBitmap/LSystemToBitmapSketch.vue'
+import Rule from '/imports/ui/LSystemToBitmap/LSystemToBitmapRule.vue'
 
 
 export default {
@@ -44,7 +57,7 @@ export default {
     return {
       isShowingDB: false,
       text: '',
-      rules: '',
+      rules:[],
       nb: 0,
     }
   },
@@ -55,18 +68,34 @@ export default {
     handleInputText(event) {
       this.text = event.target.value;
     },
-    handleInputRules(event) {
-      this.rules = event.target.value;
-    },
+
     handleSubmitNb(event) {
       this.nb = parseInt(event.target.value);
+    },
+
+    updateRule(rule, target, id){
+
+      this.rules[id].rule = rule;
+      this.rules[id].target = target;
+    },
+
+    addRule(){
+      this.rules.push ({'rule':'', 'target':'', 'id':this.rules.length})
     },
 
 
 
     handleSubmit(event) {
       //todo
-      Meteor.call('insertText', {text : this.text}); 
+      /*
+      Meteor.call('insertLSystem', 
+      {
+        expression: this.text;
+        rules: this.rules;
+        nb: this.nb;
+      });
+      */
+      //Meteor.call('insertText', {text : this.text}); 
     },
 
 
@@ -86,7 +115,8 @@ export default {
   },
 
   components: {
-    sketch : Sketch,
+    Sketch : Sketch,
+    Rule : Rule,
   },
 
   // Meteor reactivity
@@ -129,6 +159,14 @@ export default {
     height:50px;
     resize:none;
   }
+
+  textarea[name="ruleTarget"] {
+    width:30px;
+  }
+  textarea[name="rule"] {
+    width:300px;
+  }
+
   canvas {
     width:500px;
   }
