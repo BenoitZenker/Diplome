@@ -55,16 +55,16 @@
 						dir=n.dir;	
 					}
 
-					else if (c == c.toUpperCase()) {
+					else if (c == " ") {
 						
 						x = this.nextX(x, dir);
 						y = this.nextY(y, dir);
-						sketch.rect(x, y, this.rectSize, this.rectSize);
-					
 					}	
-					else if (c==c.toLowerCase()){
+
+					else {
 						x = this.nextX(x, dir);
 						y = this.nextY(y, dir);
+						sketch.rect(x, y, this.rectSize, this.rectSize);
 					}
 				}
 				//preview du prochain
@@ -120,9 +120,6 @@
 
 		  			let t = rule.target;
 		  			let r = rule.rule;
-
-
-		  			console.log("turtle", t, r, nb);
 					
 					//on applique la règle seulement si elle existe
 		  			if (t!= "" && r !="") {
@@ -131,8 +128,6 @@
 		    				expr = expr.replace(re, r);
 		  				}
 		    		}	
-
-		    		console.log("expr: ", expr);
 				});
 	    		return expr;
 	  		},

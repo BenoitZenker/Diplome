@@ -1,6 +1,6 @@
 <template>
   <div id="NavLeft">
-    <input type="button" value="Revenir à ...">
+    <button type="button">Revenir à ...</button>
   </div>
 </template>
 
@@ -30,16 +30,5 @@
 
   }
 
-
-  input {
-    font-size:18px;
-    padding:4px 16px 4px 16px;
-    border-radius:0;
-    color:black;
-    border: none;
-    display:block;
-
-    margin-bottom:4px;
-  }
 
 </style>

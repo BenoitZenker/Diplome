@@ -11,19 +11,21 @@
       <form @submit.prevent="handleSubmit">
         
 
-        <textarea v-model="text" placeholder="Texte de départ"></textarea>
+        <textarea v-model="text" placeholder="Votre texte..."></textarea>
 
-        <input type="button" name="nouvelle règle" @click="addRule">
+        <button type="button"  @click="addRule" >Ajouter une règle</button>
+
+        <div id="block-iterations">
+          <label for="iterations">Itérations = </label>
+          <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" v-model="nb">
+        </div>
+
         <ul id="rules">
           <li v-for="rule in this.rules" :key="rule.id">
             <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id"></Rule>
           </li>
         </ul>
 
-        
-        <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" v-model="nb">
-
-        <input type="submit" value="valider">
       </form>
 
       <ul>
@@ -55,7 +57,9 @@ export default {
     return {
       isShowingDB: false,
       text: '',
-      rules:[],
+      rules: [],  //le v-for ne marche pas avec map, il faut une copie en array
+      rulesMap: new Map(),
+      nextRuleId: 0,
       nb: 0,
     }
   },
@@ -65,17 +69,19 @@ export default {
   methods: {  
     updateRule(rule, target, id){
 
-      this.rules[id].rule = rule;
-      this.rules[id].target = target;
+      this.rulesMap.get(id).rule = rule;
+      this.rulesMap.get(id).target = target;
     },
 
     addRule(){
-      this.rules.push ({'rule':'', 'target':'', 'id':this.rules.length})
+      this.rulesMap.set(this.nextRuleId, {'rule':'', 'target':'', 'id':this.nextRuleId})
+      this.rules = Array.from(this.rulesMap.values());
+      this.nextRuleId++;
     },
 
     deleteRule(id){
-      console.log("d")
-      this.rules.splice(id, 1);
+      this.rulesMap.delete(id);
+      this.rules = Array.from(this.rulesMap.values());
     },
 
 
@@ -137,30 +143,37 @@ export default {
     width: calc(100vw - 500px);
     height: calc(100vh - 50px);
 
-    background-color:pink;
-
     margin-left:250px;
     margin-top:40px;
     overflow:scroll;
   }
 
-  li {
-    list-style-type: none;
+  #block-iterations {
+    float:right;
   }
-  textarea {
-    width:100%;
-    height:50px;
-    resize:none;
+  #block-iterations input {
+    width:40px;
   }
 
-  textarea[name="ruleTarget"] {
-    width:30px;
-  }
-  textarea[name="rule"] {
-    width:300px;
+  textarea {
+    width:100%;
+    height:60px;
+    font-size: 18px;
+    margin-bottom: 8px;
   }
 
   canvas {
     width:500px;
   }
+
+  ul {
+    margin:0;
+    padding:0;
+  }
+  li {
+    margin-bottom:8px;
+    padding:0;
+    height:32px;
+  }
+
 </style>

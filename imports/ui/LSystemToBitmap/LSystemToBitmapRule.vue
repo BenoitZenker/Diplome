@@ -3,7 +3,7 @@
     <textarea v-model="target" @input="changeRule"></textarea>
     = 
     <textarea v-model="rule" @input="changeRule"></textarea>
-    <input type="button" name="delete" @click="deleteRule">
+    <button type="button" name="delete" @click="deleteRule">X</button>
   </div>
 </template>
 
@@ -38,7 +38,17 @@
 
 
 <style scoped>
+
   textarea {
-    resize:none;
+    font-size: 18px;
+    line-height:32px;
+    height:30px;
+    margin:0;
   }
+  button {
+    vertical-align: top;
+    margin:0;
+  }
+
+
 </style>
