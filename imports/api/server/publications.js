@@ -1,3 +1,3 @@
-Meteor.publish('Texts', function () {
-  return Texts.find({});
+Meteor.publish('LSystems', function () {
+  return LSystems.find({});
 });

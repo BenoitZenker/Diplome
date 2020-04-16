@@ -11,7 +11,6 @@
 
 
 <script>
-import '/imports/api/texts.js';
 import NavLeft from '/imports/ui/NavLeft.vue'
 import NavRight from '/imports/ui/NavRight.vue'
 import TraductionMap from '/imports/ui/TraductionMap.vue'

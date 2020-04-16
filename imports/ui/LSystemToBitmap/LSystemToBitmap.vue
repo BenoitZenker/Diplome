@@ -1,42 +1,30 @@
 <template>
   <div id="TextToBitmap" ref="TextToBitmap">
 
-    <div v-if="!$subReady.Texts">Loading...</div>
 
-    <div v-else>
+    <sketch ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
-      <sketch ref="sketch" :text="text" :rules="rules" :nb="nb" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
+   
 
-     
-      <form @submit.prevent="handleSubmit">
-        
+    <textarea v-model="text" placeholder="Votre texte..."></textarea>
 
-        <textarea v-model="text" placeholder="Votre texte..."></textarea>
+    <button type="button"  @click="addRule" >Ajouter une règle</button>
 
-        <button type="button"  @click="addRule" >Ajouter une règle</button>
-
-        <div id="block-iterations">
-          <label for="iterations">Itérations = </label>
-          <input type="number" value = "0" ref="nb" name="iterations" min="0" max="5" v-model="nb">
-        </div>
-
-        <ul id="rules">
-          <li v-for="rule in this.rules" :key="rule.id">
-            <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id"></Rule>
-          </li>
-        </ul>
-
-      </form>
-
-      <ul>
-        <li v-for="t in TextsCursor" @click="setText">
-          {{t.text}}  -  {{t._id}}
-        </li>
-      </ul>
-
-
+    <div id="block-iterations">
+      <label for="iterations">Itérations = </label>
+      <input type="number" value = "1" ref="nb" name="iterations" min="0" max="5" v-model="nb">
     </div>
 
+    <ul id="rules">
+      <li v-for="rule in this.rules" :key="rule.id">
+        <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id"></Rule>
+      </li>
+    </ul>
+
+
+    <button type="button"  @click="handleSubmit" >save</button>
+
+    <DB v-on:setLSystem="setLSystem"></DB>
 
   </div>
 </template>
@@ -45,9 +33,10 @@
 
 
 <script>
-import '/imports/api/texts.js';
 import Sketch from '/imports/ui/LSystemToBitmap/LSystemToBitmapSketch.vue'
 import Rule from '/imports/ui/LSystemToBitmap/LSystemToBitmapRule.vue'
+import DB from '/imports/ui/LSystemToBitmap/LSystemToBitmapDB.vue'
+
 
 
 export default {
@@ -60,7 +49,7 @@ export default {
       rules: [],  //le v-for ne marche pas avec map, il faut une copie en array
       rulesMap: new Map(),
       nextRuleId: 0,
-      nb: 0,
+      nb: 1,
     }
   },
 
@@ -86,51 +75,66 @@ export default {
 
 
     handleSubmit(event) {
-      //todo
-      /*
+
+      //ajout à la bdd
       Meteor.call('insertLSystem', 
       {
-        expression: this.text;
-        rules: this.rules;
-        nb: this.nb;
+        expr: this.text,
+        rules: this.rules, //on envoie le tableau pas la map
+        nb: this.nb,
       });
-      */
-      //Meteor.call('insertText', {text : this.text}); 
+
     },
 
 
-    setText(event){
-      this.text = event.target.innerText;
+    //*******************************************************************
+    //TODO!!!!!! c'est bidon, mieux vaut calcuer la turtle ici
+    //*******************************************************************
+    setLSystem(expr, rules, nb){
+      this.text = expr;
+      this.nb = nb;
+
+      //make new array of rules
+      this.rulesMap = new Map();
+      for (let i = 0; i<rules.length; i++){
+        this.rulesMap.set(rules[i].id, {'target': rules[i].target, 'rule': rules[i].rule, 'id':rules[i].id});
+      }
+
+      this.rules = Array.from(this.rulesMap.values());
+      //also change the rule array
+      //this.rules.length=0;
+      //this.rules.push(...Array.from(this.rulesMap.values()));
+      this.rules.forEach(function (rule) {
+        console.log(rule.target);
+      });
     },
   },
 
   computed: {
+
+    //*******************************************************************
+    //TODO!!!!!! ref n'est pas réactif!!!!!
+    //*******************************************************************
     getWidth(){
-      return this.$refs.TextToBitmap.clientWidth;
+      if (this.$refs.TextToBitmap)
+        return this.$refs.TextToBitmap.clientWidth;
+      else
+        return 1080;
     },
     getHeight(){
-      return this.$refs.TextToBitmap.clientHeight;
+      if (this.$refs.TextToBitmap)
+        return this.$refs.TextToBitmap.clientHeight;
+      else
+        return 1080;
     }
   },
 
   components: {
     Sketch : Sketch,
     Rule : Rule,
+    DB : DB,
   },
 
-  // Meteor reactivity
-  meteor: {
-    // Subscriptions - Errors not reported spelling and capitalization.
-    $subscribe: {
-      'Texts': [],
-    },
-
-    TextsCursor () {
-      return Texts.find({}, {
-        sort: {time: -1}
-      })
-    },
-  }
 }
 </script>
 
