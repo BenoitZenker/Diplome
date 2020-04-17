@@ -104,7 +104,7 @@
 
 	  	props: {
 	  		text: String,
-	  		rules: Array,
+	  		rules: Map,
 	  		nb: Number,
 	  		parentWidth: Number,
 	  		parentHeight: Number,
@@ -112,11 +112,27 @@
 
 	  	computed: {
 	  		turtle:function(){
+	  			console.log(this.rules);
 	  			//copie de l'expression
 	  			let expr = (this.text).repeat(1);
 	  			let nb = this.nb;
 
-	  			this.rules.forEach(function (rule) {
+
+	  			for (let rule of this.rules.values()){
+	  				let t = rule.target;
+		  			let r = rule.rule;
+					
+					//on applique la règle seulement si elle existe
+		  			if (t!= "" && r !="") {
+		  				let re = new RegExp(t, "g");
+						for (var i = 0; i < nb; i++) {
+		    				expr = expr.replace(re, r);
+		  				}
+		    		}	
+	  			}
+
+	  			/*
+	  			this.rules.values().forEach(function (rule) {
 
 		  			let t = rule.target;
 		  			let r = rule.rule;
@@ -129,6 +145,8 @@
 		  				}
 		    		}	
 				});
+				*/
+	  			
 	    		return expr;
 	  		},
 

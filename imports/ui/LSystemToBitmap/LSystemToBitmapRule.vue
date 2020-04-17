@@ -11,15 +11,11 @@
 
   export default {
     
-    data() {
-      return {
-        rule:'F',
-        target:'F',
-      }
-    },
 
     props:{
       id:Number,
+      rule:String,
+      target:String,
     },
     
     methods: {

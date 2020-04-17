@@ -2,7 +2,7 @@
   <div id="TextToBitmap" ref="TextToBitmap">
 
 
-    <sketch ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
+    <sketch  ref="sketch" :text="text" :rules="rulesMap" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
    
 
@@ -16,8 +16,8 @@
     </div>
 
     <ul id="rules">
-      <li v-for="rule in this.rules" :key="rule.id">
-        <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id"></Rule>
+      <li v-for="rule in this.rulesArray" :key="rule.id">
+        <Rule @deleteRule ="deleteRule" @updateRule="updateRule" :id ="rule.id" :rule="rule.rule" :target="rule.target"></Rule>
       </li>
     </ul>
 
@@ -46,10 +46,16 @@ export default {
     return {
       isShowingDB: false,
       text: '',
-      rules: [],  //le v-for ne marche pas avec map, il faut une copie en array
       rulesMap: new Map(),
+      rulesArray:Array,
       nextRuleId: 0,
       nb: 1,
+    }
+  },
+
+  computed: {
+    'rulesArray': function() { 
+      return Array.from(this.rulesMap.values());
     }
   },
 
@@ -57,61 +63,39 @@ export default {
   // Vue Methods
   methods: {  
     updateRule(rule, target, id){
-
       this.rulesMap.get(id).rule = rule;
       this.rulesMap.get(id).target = target;
     },
 
     addRule(){
+      console.log(this.rulesMap);
       this.rulesMap.set(this.nextRuleId, {'rule':'', 'target':'', 'id':this.nextRuleId})
-      this.rules = Array.from(this.rulesMap.values());
       this.nextRuleId++;
     },
 
     deleteRule(id){
       this.rulesMap.delete(id);
-      this.rules = Array.from(this.rulesMap.values());
     },
 
-
     handleSubmit(event) {
-
       //ajout à la bdd
       Meteor.call('insertLSystem', 
       {
         expr: this.text,
-        rules: this.rules, //on envoie le tableau pas la map
+        rules: this.rulesArray, //on envoie le tableau pas la map
         nb: this.nb,
       });
-
     },
 
-
-    //*******************************************************************
-    //TODO!!!!!! c'est bidon, mieux vaut calcuer la turtle ici
-    //*******************************************************************
     setLSystem(expr, rules, nb){
       this.text = expr;
       this.nb = nb;
-
-      //make new array of rules
-      this.rulesMap = new Map();
-      for (let i = 0; i<rules.length; i++){
-        this.rulesMap.set(rules[i].id, {'target': rules[i].target, 'rule': rules[i].rule, 'id':rules[i].id});
-      }
-
-      this.rules = Array.from(this.rulesMap.values());
-      //also change the rule array
-      //this.rules.length=0;
-      //this.rules.push(...Array.from(this.rulesMap.values()));
-      this.rules.forEach(function (rule) {
-        console.log(rule.target);
-      });
+      this.rulesMap = rules;
     },
   },
 
-  computed: {
 
+  computed: {
     //*******************************************************************
     //TODO!!!!!! ref n'est pas réactif!!!!!
     //*******************************************************************
