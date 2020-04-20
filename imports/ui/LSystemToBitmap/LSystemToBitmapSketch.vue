@@ -130,22 +130,6 @@
 		  				}
 		    		}	
 	  			}
-
-	  			/*
-	  			this.rules.values().forEach(function (rule) {
-
-		  			let t = rule.target;
-		  			let r = rule.rule;
-					
-					//on applique la règle seulement si elle existe
-		  			if (t!= "" && r !="") {
-		  				let re = new RegExp(t, "g");
-						for (var i = 0; i < nb; i++) {
-		    				expr = expr.replace(re, r);
-		  				}
-		    		}	
-				});
-				*/
 	  			
 	    		return expr;
 	  		},

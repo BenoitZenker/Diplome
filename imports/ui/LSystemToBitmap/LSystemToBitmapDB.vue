@@ -5,8 +5,8 @@
 
     <div v-else>
       <ul>
-        <li v-for="elem in DBCursor" >
-          <DisplaySave :expr="elem.expr" :rules="elem.rules" :nb="parseInt(elem.nb)" :id="elem._id" @setLSystem="setLSystem"></DisplaySave>
+        <li v-for="elem in DBCursor" :key="elem._id" @click="$emit('set-lsystem', elem)">
+          <p>{{elem.expr}}, {{elem.rules.length}} règles, {{elem.nb}} itérations</p>
         </li>
       </ul>
     </div>
@@ -18,25 +18,9 @@
 <script>
 
   import '/imports/api/LSystems/LSystems.js';
-  import DisplaySave from '/imports/ui/LSystemToBitmap/LSystemToBitmapSave'
 
   export default {
     
-    data() {
-      return {
-      }
-    },
-
-    components:{
-      DisplaySave : DisplaySave,
-    },
-    
-    methods: {
-      setLSystem(expr, rules, nb){
-        this.$emit('setLSystem', expr, rules, nb)
-      },
-    },
-
     meteor: {
 
       $subscribe: {
