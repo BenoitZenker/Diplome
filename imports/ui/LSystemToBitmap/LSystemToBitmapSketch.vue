@@ -12,27 +12,38 @@
 		      sketch.background('white');
 		      sketch.resizeCanvas(this.parentWidth, 400);
 
+		      //l'animtion du pixel suivant
 		      sketch.s=20;
 		      sketch.timer = 0;
 		      sketch.isFlashing = true;
+
+		      sketch.size = 300;	//taille de l'image
+		      sketch.border = 2;	//epaisseur du cadre pour l'affichage
+		      sketch.pixelSize = sketch.size/16;
+		      sketch.pg = sketch.createGraphics(sketch.size, sketch.size);
 	    	},
 
 
 	    	draw(sketch) {
 
 				sketch.background('white');
-				sketch.strokeWeight(2);
-				sketch.fill('white');
-				sketch.rect(0,0, sketch.width, sketch.height);
 
+				//la bordure
+				sketch.fill('black');
+				sketch.rectMode(sketch.CENTER);
+				sketch.rect(sketch.width/2, sketch.height/2, sketch.size+sketch.border,sketch.size+sketch.border);
 
+				
 
-				let x = sketch.width/2;
+				let x = 0;
 				let y = 0;
 				let dir = 0;
 
-				sketch.noStroke();
-				sketch.fill('black');
+				
+				//l'image
+				sketch.pg.background('white');
+				sketch.pg.noStroke();
+				sketch.pg.fill('black');
 
 
 				let nodes = [];
@@ -43,6 +54,7 @@
 					}
 					else if (c == '-') {
 						dir = (dir-1)%4;
+						dir = dir<0?3:dir;
 					}
 
 					else if (c =='[') {
@@ -57,45 +69,73 @@
 
 					else if (c == " ") {
 						
-						x = this.nextX(x, dir);
-						y = this.nextY(y, dir);
+						x = this.nextX(sketch, x, dir);
+						y = this.nextY(sketch, y, dir);
 					}	
 
 					else {
-						x = this.nextX(x, dir);
-						y = this.nextY(y, dir);
-						sketch.rect(x, y, this.rectSize, this.rectSize);
+						sketch.pg.rect(x, y, sketch.pixelSize, sketch.pixelSize);
+						x = this.nextX(sketch, x, dir);
+						y = this.nextY(sketch, y, dir);
+						
 					}
+
+					//boucle si on dépasse du cadre
+					if (x >= sketch.pg.width)
+						x = 0;
+					else if (x<0)
+						x = sketch.pg.width-sketch.pixelSize;
+					if (y >= sketch.pg.height)
+						y = 0;
+					else if (y <0)
+						y = sketch.pg.height-sketch.pixelSize;
 				}
+
 				//preview du prochain
-				this.flash(sketch, this.nextX(x, dir), this.nextY(y, dir));
+				this.flash(sketch, x, y, dir, sketch.pg);
+				console.log(dir);
+
+
+				//affichage de l'image
+				sketch.rectMode(sketch.CENTER);
+				sketch.image(sketch.pg, (sketch.width-sketch.pg.width)/2, (sketch.height-sketch.pg.height)/2);
 				
 	    	},
 
-	    	nextY(y, dir) {
+	    	nextY(sketch, y, dir) {
 	    		if (dir%2 == 0) {
-					y += (dir == 0)?this.rectSize:-this.rectSize;
+					y += (dir == 0)?sketch.pixelSize:-sketch.pixelSize;
 				}
 				return y;
 	    	},
 
-	    	nextX(x, dir) {
+	    	nextX(sketch, x, dir) {
 	    		if (dir%2 != 0) {
-					x+= (dir ==1)?this.rectSize:-this.rectSize;
+					x+= (dir ==1)?sketch.pixelSize:-sketch.pixelSize;
 				}
 				return x;
 	    	},
 
 
-	    	flash(sketch, x, y) {
+	    	flash(sketch, x, y, dir, pg) {
 	    		if (sketch.millis()-sketch.timer > 100) {
 	    			sketch.timer=sketch.millis();
-		    		sketch.noStroke();
 		    		sketch.isFlashing = !sketch.isFlashing;
 		    	}
 		    	if (sketch.isFlashing) {
-					sketch.fill('grey');
-					sketch.rect(x, y, this.rectSize, this.rectSize);
+					sketch.pg.fill('grey');
+					sketch.pg.rect(x, y, sketch.pixelSize, sketch.pixelSize);
+					sketch.pg.fill('black');
+
+					//le point qui affiche la direction
+					if (dir%4 == 0)
+						sketch.pg.ellipse(x+sketch.pixelSize/2,y+sketch.pixelSize-4,4,4);
+					else if (dir%4 == 2)
+						sketch.pg.ellipse(x+sketch.pixelSize/2,y+4,4,4);
+					else if (dir%4 == 1)
+						sketch.pg.ellipse(x+sketch.pixelSize-4,y+sketch.pixelSize/2,4,4);
+					else
+						sketch.pg.ellipse(x+4,y+sketch.pixelSize/2,4,4);
 				}
 	    	},
 
@@ -104,7 +144,7 @@
 
 	  	props: {
 	  		text: String,
-	  		rules: Map,
+	  		rules: Array,
 	  		nb: Number,
 	  		parentWidth: Number,
 	  		parentHeight: Number,
@@ -132,10 +172,6 @@
 	  			}
 	  			
 	    		return expr;
-	  		},
-
-	  		rectSize: function(){
-	  			return this.parentWidth/40;
 	  		},
 	  	},
 

@@ -161,7 +161,7 @@ export default {
     font-size: 18px;
     line-height:32px;
     height:30px;
-    width:100px;
+    width:200px;
     margin:0;
   }
   .rule button {
