@@ -20,6 +20,7 @@ import TraductionMap from '/imports/ui/TraductionMap.vue'
 import LSystemToBitmap from '/imports/ui/LSystemToBitmap/LSystemToBitmap.vue'
 import BitmapTo3D from '/imports/ui/BitmapTo3D/BitmapTo3D.vue'
 
+
 export default {
 
   components: {

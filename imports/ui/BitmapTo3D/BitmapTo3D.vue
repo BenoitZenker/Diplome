@@ -1,99 +1,87 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
-   
-    <vgl-renderer ref="renderer" class="vgl-renderer" camera="camera" scene="scene" >
-      <vgl-box-geometry name="box"></vgl-box-geometry>
-      <vgl-scene name="scene">
-        <vgl-mesh geometry="box"></vgl-mesh>
-      </vgl-scene>
-      <vgl-perspective-camera name="camera" orbit-position="3 1 0.5"></vgl-perspective-camera>
-      <orbit-controls camera="camera" @camera-change="cameraChange"></orbit-controls> 
-    </vgl-renderer>
-
-
-    
   </div>
 </template>
 
 
 <script>
-  import VueGL from 'vue-gl';
-  import Vue from 'vue';
+
+  import THREE from 'three';
   import OrbitControls from 'orbit-controls-es6';
 
-  //TODO faire les imports localement, ou les faire ailleurs  
-  Object.keys(VueGL).forEach((name) => Vue.component(name, VueGL[name]));
-
-
-
-
-  //création d'un composant orbitcontrol pour gérer la caméra avec la souris
-  Vue.component('OrbitControls', {
-    inject: ['vglNamespace'],
-
-    props: ['camera'],
-
-    computed: {
-      cmr () {
-        return this.vglNamespace.cameras.get("camera");
-      }
-    },
-
-    mounted() {
-      console.log(this.$el)
-
-      this.mounted = true;
-    },
-
-
-    watch: {
-      cmr: {
-
-        //TODO:::
-        //créer un event et lancer l'event à la création du canvas, depuis le parent
-        handler(cmr) {
-          console.log("changed");
-          console.log(this.mounted)
-          
-          const controls = new OrbitControls(cmr)
-          controls.addEventListener('change', () => {
-            this.$emit('camera-change')
-          })
-          
-
-        },
-        immediate: true,
-      }
-    },
-
-    render(h) {
-      return h('div');
-    },
-  });
-
-
-
-  
 
 export default {
 
   data() {
     return {
 
+      width:800,
+      height:400,
+
+      scene:Object,
+      camera: Object,
+      renderer: Object,
+      controls: Object,
+
+      id:undefined, //requestanimationframe
     }
   },
 
 
   // Vue Methods
   methods: {  
-    cameraChange(){
-      this.$refs.renderer.requestRender();
-    }
+    handleResize:function(){
+      this.height = this.$el.clientHeight;
+      this.width = this.$el.clientWidth;
+
+      this.renderer.setSize(this.width, this.height);
+    },
+
+    animate:function(){
+      this.controls.update();
+      this.renderer.render( this.scene, this.camera );
+      this.id = window.requestAnimationFrame(this.animate);
+    },
   },
 
 
+  mounted:function() {
+
+    this.scene = new THREE.Scene();
+
+    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    this.controls = new OrbitControls(this.camera,this.$el)
+
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setSize( this.$el.clientWidth, this.$el.clientHeight );
+    this.$el.appendChild( this.renderer.domElement );
+
+    //TODO dans mounted() le css n'est pas prêt, et les dimensions du canvas sont mauvaises.
+    this.renderer.setSize(this.width, this.height);
+    window.addEventListener('resize', this.handleResize);
 
 
+    var geometry = new THREE.BoxGeometry();
+    var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    var cube = new THREE.Mesh( geometry, material );
+    this.scene.add( cube );
+
+    this.camera.position.z = 5;
+
+
+    //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
+    this.id = window.requestAnimationFrame( this.animate);
+    
+  },
+
+  destroyed() {
+    window.cancelAnimationFrame(this.id);
+    this.id = undefined;
+  },
+
+
+  computed:{
+  },
   components: {
   },
 
@@ -108,14 +96,10 @@ export default {
   #BitmapTo3D {
     width: calc(100vw - 500px);
     height: calc(100vh - 50px);
-
-
     margin-left:250px;
     top:40px;
     overflow:scroll;
   }
-
-
 
 
 </style>
