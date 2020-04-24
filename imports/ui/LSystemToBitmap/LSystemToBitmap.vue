@@ -4,31 +4,34 @@
 
     <sketch  ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
+    <div id="interface">
 
-    <textarea v-model="text" placeholder="Votre texte..."></textarea>
+      <textarea v-model="text" placeholder="Votre texte..."></textarea>
 
-    <button type="button"  @click="addRule" >Ajouter une règle</button>
+      <button type="button"  @click="addRule" >Ajouter une règle</button>
 
-    <div id="block-iterations">
-      <label for="iterations">Itérations = </label>
-      <input type="number" value = "1" ref="nb" name="iterations" min="0" max="5" v-model="nb">
+      <div id="block-iterations">
+        <label for="iterations">Itérations = </label>
+        <input type="number" value = "1" ref="nb" name="iterations" min="0" max="5" v-model="nb">
+      </div>
+
+
+
+      <ul id="rules">
+        <li class="rule" v-for="(rule, index) in this.rules" :key="index" >
+          <textarea v-model="rule.target"></textarea>
+          <span>=</span>
+          <textarea v-model="rule.rule"></textarea>
+          <button type="button" name="delete" @click="deleteRule(index)">X</button>
+        </li>
+      </ul>
+
+
+      <button type="button"  @click="handleSubmit" >save</button>
     </div>
 
-
-
-    <ul id="rules">
-      <li class="rule" v-for="(rule, index) in this.rules" :key="index" >
-        <textarea v-model="rule.target"></textarea>
-        <span>=</span>
-        <textarea v-model="rule.rule"></textarea>
-        <button type="button" name="delete" @click="deleteRule(index)">X</button>
-      </li>
-    </ul>
-
-
-    <button type="button"  @click="handleSubmit" >save</button>
-
-    <DB @set-lsystem="setLSystem"></DB>
+      <DB v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
+      <button v-else type="button"  @click="showDB" name="saves">saves</button>
 
   </div>
 </template>
@@ -47,17 +50,25 @@ export default {
   data() {
     //code here...
     return {
-      isShowingDB: false,
+      showingDB: false,
       text: '',
       rules:[],
       nextRuleId: 0,
       nb: 1,
+
     }
   },
 
 
   // Vue Methods
   methods: {  
+
+    showDB(){
+      this.showingDB = true;
+    },
+    closeDB(){
+      this.showingDB = false;
+    },
 
     addRule(){
       this.rules.push({'rule':'', 'target':''});
@@ -123,7 +134,9 @@ export default {
 
     margin-left:250px;
     margin-top:40px;
-    overflow:scroll;
+
+    overflow: hidden;
+    
   }
 
   #block-iterations {
@@ -134,14 +147,14 @@ export default {
   }
 
   textarea {
-    width:100%;
+    width:99%;
     height:60px;
     font-size: 18px;
     margin-bottom: 8px;
   }
 
   canvas {
-    width:500px;
+    width:400px;
   }
 
   ul {
@@ -155,7 +168,10 @@ export default {
   }
 
 
-
+  #interface {
+    overflow: scroll;
+    height:240px;
+  }
 
   .rule textarea {
     font-size: 18px;

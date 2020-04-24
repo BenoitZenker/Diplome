@@ -1,7 +1,8 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
   <div ref="three" id="three"></div>
-  <P5Sketch :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
+  <P5Sketch ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
+  <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
   </div>
 </template>
 
@@ -27,6 +28,7 @@ export default {
       renderer: Object,
       controls: Object,
       cubes:[],
+      lines:[],
 
       id:undefined, //requestanimationframe
 
@@ -48,6 +50,7 @@ export default {
       //change 3D
       for (let z=0; z< this.imgDim; z++) {
         this.cubes[y][z][x].visible = this.pixels[z][x];
+        this.lines[y][z][x].visible = this.pixels[z][x];
       }
     },
 
@@ -63,13 +66,24 @@ export default {
 
     },
 
+    //TODO: NÉCESSAIRE?
     animate:function(){
       this.controls.update();
 
-      //this.drawCubes();
-
       this.renderer.render( this.scene, this.camera );
       this.id = window.requestAnimationFrame(this.animate);
+    },
+
+    clearAllPixels:function(){
+
+      this.$refs.p5.clearAllPixels();
+
+      for (let y=0; y< this.imgDim; y++) 
+        for (let z=0; z< this.imgDim; z++) 
+          for (let x=0; x< this.imgDim; x++) {
+            this.cubes[y][z][x].visible = false;
+            this.lines[y][z][x].visible = false;
+          }
     },
 
   },
@@ -88,13 +102,12 @@ export default {
     }
 
 
-
-
-
-
+    //*******************************************************************
+    //création de la scène
+    //*******************************************************************
     this.scene = new THREE.Scene();
 
-    this.camera =  new THREE.PerspectiveCamera( 105, 1, 1, 1000 );
+    this.camera =  new THREE.PerspectiveCamera( 80, 1, 1, 1000 );
     this.controls = new OrbitControls(this.camera,this.$refs.three);
     //empêche le scroll
     this.controls.enableZoom = false;
@@ -109,6 +122,10 @@ export default {
     window.addEventListener('resize', this.handleResize);
 
 
+
+    //*******************************************************************
+    //creation des géométries
+    //*******************************************************************
     //crée tous les cubes
     let group = new THREE.Group();
     group.position.x = -this.imgDim/2
@@ -116,26 +133,45 @@ export default {
     group.position.z = -this.imgDim/2;
     group.rotateY(0.2);
 
+
     let geometry = new THREE.BoxGeometry();
-    let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    let edges = new THREE.EdgesGeometry( geometry );
+    let meshMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+    let lineMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
 
     for (let y=0; y< this.imgDim; y++) {
       this.cubes[y] = [];
+      this.lines[y] = [];
       for (let z=0; z< this.imgDim; z++) {
         this.cubes[y][z] = []
+        this.lines[y][z] = []
         for (let x=0; x< this.imgDim; x++) {
-          let cube = new THREE.Mesh( geometry, material );
+
+
+          //le mesh
+          let cube = new THREE.Mesh( geometry, meshMaterial );
+
           cube.position.x = x;
           cube.position.y = y;
           cube.position.z = z;
 
           cube.visible = false;
 
-          //ajout au groupe de rendu
           group.add(cube);
-          //ajout au tableau dans data
           this.cubes[y][z][x] = cube;
 
+
+          //les aretes
+          let wireframe = new THREE.LineSegments( edges, lineMaterial );
+
+          wireframe.position.x = x;
+          wireframe.position.y = y;
+          wireframe.position.z = z;
+
+          wireframe.visible = false;
+
+          group.add(wireframe);
+          this.lines[y][z][x] = wireframe;
         }
       }
     }
@@ -149,6 +185,7 @@ export default {
 
     //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
     this.id = window.requestAnimationFrame( this.animate);
+
     
   },
 

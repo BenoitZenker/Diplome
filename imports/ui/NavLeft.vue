@@ -14,6 +14,7 @@
 
 
 <style scoped>
+
   #NavLeft {
     position:fixed;
     top:40px;
@@ -28,6 +29,10 @@
 
     /*background-color: blue;*/
 
+  }
+
+  button {
+    margin-right: 60px;
   }
 
 

@@ -17,7 +17,7 @@
 		methods: {
 		    setup(sketch) {
 		      sketch.background('white');
-		      sketch.resizeCanvas(200,200);
+		      sketch.resizeCanvas(410,200);
 
 		      this.pixels = [];
 		      for (let i =0; i< this.imgDim; i++){
@@ -32,13 +32,34 @@
 
 
 	    	draw(sketch) {
-				sketch.background('blue');
+	    		
+
+
+				sketch.fill('white');
+				sketch.strokeWeight(2);
+				sketch.stroke('black');
+				sketch.rect(0,0, 200, 200);
+				sketch.rect(210,0, 200, 200);
+
+
+				sketch.noStroke();
+				sketch.fill('black');
 
 				for (let y =0; y< this.imgDim; y++){
 		      		for (let x=0; x<this.imgDim; x++)
 		      			if (this.pixels[y][x])
 		      				sketch.rect(x*this.pixSize, y*this.pixSize, this.pixSize, this.pixSize);
-		      }
+		     	}
+
+
+
+
+		     	//affichage pixels de base
+	    		for (let y =0; y< this.imgDim; y++){
+		      		for (let x=0; x<this.imgDim; x++)
+		      			if (this.pixelsOG[y][x])
+		      				sketch.rect(210 + (this.imgDim-(x+1))*this.pixSize, (this.imgDim -(y+1))*this.pixSize, this.pixSize, this.pixSize);
+		     	}
 
 				
 	    	},
@@ -51,12 +72,18 @@
 	    		//TODO trouver un moyen plus propre de limiter les event clic au canvas
 	    		if (x >=0 && x<this.imgDim && y >=0 && y<this.imgDim) {
 	    			this.pixels[y][x] = true;
-	    			//préviens le parent
-	    		this.$emit('update-p5-image',x,y);
+
+	    		//préviens le parent 
+	    		//!!inverser les valeurs
+	    		this.$emit('update-p5-image',this.imgDim -(x+1) ,this.imgDim-(y+1));
 	    		}
+	    	},
 
-	    		
-
+	    	clearAllPixels(){
+	    		for (let y =0; y< this.imgDim; y++){
+		      		for (let x=0; x<this.imgDim; x++)
+		      			this.pixels[y][x] = false;
+		     	}
 	    	}
 
 	 
@@ -65,6 +92,7 @@
 
 	  	props: {
 	  		imgDim:Number,
+	  		pixelsOG:Array,
 	  	},
 
 

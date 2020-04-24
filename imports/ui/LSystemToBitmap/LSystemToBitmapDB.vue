@@ -1,6 +1,8 @@
 <template>
   <div id="DB">
 
+    <button type="button"  @click="close" >X</button>
+
     <div v-if="!$subReady.LSystems">Loading...</div>
 
     <div v-else>
@@ -20,6 +22,12 @@
   import '/imports/api/LSystems/LSystems.js';
 
   export default {
+
+    methods:{
+      close(){
+        this.$emit("close");
+      },
+    },
     
     meteor: {
 
@@ -43,7 +51,24 @@
 <style scoped>
 
   li:hover {
-    cursor:help;
+    cursor:pointer;
+  }
+
+  li {
+    margin-left:10px;
+  }
+  #DB {
+    position:fixed;
+    width:600px;
+    height:500px;
+    top:200px;
+    right:200px;
+    background-color: white;
+    border:solid;
+  }
+
+  button {
+    float:right;
   }
 
 </style>

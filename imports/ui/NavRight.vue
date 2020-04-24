@@ -40,6 +40,9 @@
 
 
   input {
+
+    margin-left: 60px;
+
     font-size:18px;
     padding:4px 16px 4px 16px;
     border-radius:0;
