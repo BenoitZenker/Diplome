@@ -5,12 +5,12 @@
     <NavRight></NavRight>
     
     
-    <!--
-      <BitmapTo3D></BitmapTo3D> 
-    -->
     
+      <BitmapTo3D></BitmapTo3D> 
+    
+    <!--
     <LSystemToBitmap></LSystemToBitmap>
-  
+    -->
     
   </div>
 </template>
