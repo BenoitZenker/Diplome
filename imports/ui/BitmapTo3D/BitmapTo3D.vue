@@ -1,7 +1,7 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
   <div ref="three" id="three"></div>
-  <P5Sketch ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
+  <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
   <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
   </div>
 </template>
@@ -20,8 +20,8 @@ export default {
   data() {
     return {
 
-      width:800,
-      height:400,
+      width:1600,
+      height:800,
 
       scene:Object,
       camera: Object,
@@ -128,10 +128,10 @@ export default {
     //*******************************************************************
     //crée tous les cubes
     let group = new THREE.Group();
-    group.position.x = -this.imgDim/2
-    group.position.y = -this.imgDim/2;
-    group.position.z = -this.imgDim/2;
-    group.rotateY(0.2);
+    group.position.x = -this.imgDim/2 + 0.5;
+    group.position.y = -this.imgDim/2 + 0.5;
+    group.position.z = -this.imgDim/2 + 0.5;
+    //group.rotateY(0.2);
 
 
     let geometry = new THREE.BoxGeometry();
@@ -175,12 +175,16 @@ export default {
         }
       }
     }
+
+    let t = new THREE.BoxGeometry();
+    let m = new THREE.Mesh( t, meshMaterial );
+    this.scene.add(m);
     this.scene.add(group);
 
 
 
     this.camera.position.z = -this.imgDim;
-    this.camera.position.y = this.imgDim;
+    this.camera.position.y = this.imgDim/2;
 
 
     //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
@@ -210,12 +214,12 @@ export default {
 <style scoped>
 
   #BitmapTo3D {
-    width: calc(100vw - 500px);
-    height: calc(100vh - 50px);
-    margin-left:250px;
-    top:40px;
-    overflow:scroll;
+    width: 100vw;
   }
 
+  #sketch {
+    position:fixed;
+    bottom:20px;
+  }
 
 </style>
