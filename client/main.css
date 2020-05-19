@@ -4,7 +4,7 @@ body {
 
 button, input {
 	font-family: "Courier New", Courier, monospace, sans-serif;
-	font-size:18px;
+	font-size:16px;
     height:32px;
     border-radius:0;
     color:black;
@@ -20,4 +20,11 @@ textarea{
  ul {
     padding: 0;
     list-style-type: none;
+}
+
+.box {
+    background-color: white;
+    border:solid;
+    font-family: "Courier New", Courier, monospace, sans-serif;
+    font-size:16px;
 }

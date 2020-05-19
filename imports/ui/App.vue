@@ -3,13 +3,11 @@
     
 
   <div v-if="!isLogged()">
-    LOGIN 
     <Login></Login>
   </div>
 
 
   <div v-else-if="globalState == 'start'">
-    START
     <Login></Login>
 
     <button type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
@@ -18,38 +16,21 @@
 
 
   <div v-else-if="globalState == 'lSystemToBitmap'">
-    
-    <Login></Login>
-
+    <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
     <LSystemToBitmap></LSystemToBitmap>
-
-    <NavLeft></NavLeft>
-    <NavRight></NavRight>
+    <button class="navRight" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
   </div>
 
 
   <div v-else-if="globalState == 'BitmapTo3D'">
-    
-    <Login></Login>
-
+    <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
     <BitmapTo3D></BitmapTo3D> 
-
-    <NavLeft></NavLeft>
-    <NavRight></NavRight>
+    <button class="navRight" type="button" @click="toStart" >Retour au menu</button>
   </div>
 
     
     
   
-    
-    <!--
-      <BitmapTo3D></BitmapTo3D> 
-    -->
-   
-  
-    <!--
-    <LSystemToBitmap></LSystemToBitmap>
-  -->
 
       
     
@@ -93,6 +74,9 @@ export default {
     toLSystemToBitmap(){
       this.globalState = "lSystemToBitmap"
     },
+    toStart(){
+      this.globalState = "start"
+    }
 
   },
 
@@ -120,5 +104,16 @@ export default {
 
 
 <style scoped>
+  .navLeft {
+    position:absolute;
+    top:50%;
+    left:0;
+  }
+
+  .navRight{
+    position:absolute;
+    top:50%;
+    right:0;
+  }
 
 </style>

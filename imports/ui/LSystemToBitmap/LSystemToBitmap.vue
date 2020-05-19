@@ -4,7 +4,7 @@
 
     <sketch  ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
-    <div id="interface">
+    <div id="interface" class="box">
 
       <textarea v-model="text" placeholder="Votre texte..."></textarea>
 
@@ -12,7 +12,7 @@
 
       <div id="block-iterations">
         <label for="iterations">Itérations = </label>
-        <input type="number" value = "1" ref="nb" name="iterations" min="0" max="5" v-model="nb">
+        <input type="number" value = "1" ref="nb" name="iterations" min="0" max="16" v-model="nb">
       </div>
 
 
@@ -30,10 +30,12 @@
       <Saving v-if="showingSaving" @save="save" v-on:close="closeSaving"></Saving>
       <button v-else type="button"  @click="showSaving" name="enregister">Enregistrer la formule</button>
 
-    </div>
-
       <DB v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
       <button v-else type="button"  @click="showDB" name="saves">Charger une formule enregistrée</button>
+
+    </div>
+
+      
 
   </div>
 </template>
@@ -155,15 +157,12 @@ export default {
 <style scoped>
 
   #TextToBitmap {
-    width: calc(100vw - 500px);
-    height: calc(100vh - 50px);
-
-    margin-left:250px;
-    margin-top:40px;
-
+    width: 100%;
+    height: 100%;
     overflow: hidden;
     
   }
+
 
   #block-iterations {
     float:right;
@@ -180,35 +179,42 @@ export default {
   }
 
   canvas {
-    width:400px;
+    width:100%;
   }
 
   ul {
     margin:0;
-    padding:0;
   }
+
   li {
-    margin-bottom:8px;
-    padding:0;
-    height:32px;
+    display:inline-block;
+    width:100%;
   }
+
 
 
   #interface {
     overflow: scroll;
-    height:240px;
+    width: 25%;
+    position:absolute;
+    left:50%;
+    top:50%;
   }
 
+  #rules {
+    margin-bottom:40px;
+  }
   .rule textarea {
     font-size: 18px;
     line-height:32px;
     height:30px;
-    width:200px;
+    width:180px;
     margin:0;
   }
   .rule button {
-    vertical-align: top;
-    margin:0;
+    float:right;
+    clear:both;
   }
+
 
 </style>

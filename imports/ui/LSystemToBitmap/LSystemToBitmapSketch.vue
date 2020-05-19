@@ -10,16 +10,16 @@
 		methods: {
 		    setup(sketch) {
 		      sketch.background('white');
-		      sketch.resizeCanvas(this.parentWidth, 400);
+		      sketch.resizeCanvas(this.parentWidth, 800);
 
 		      //l'animtion du pixel suivant
 		      sketch.s=20;
 		      sketch.timer = 0;
 		      sketch.isFlashing = true;
 
-		      sketch.size = 300;	//taille de l'image
+		      sketch.size = 800;	//taille de l'image
 		      sketch.border = 2;	//epaisseur du cadre pour l'affichage
-		      sketch.pixelSize = sketch.size/16;
+		      sketch.pixelSize = sketch.size/32;
 		      sketch.pg = sketch.createGraphics(sketch.size, sketch.size);
 	    	},
 
