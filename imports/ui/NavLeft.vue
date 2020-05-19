@@ -19,7 +19,7 @@
     position:fixed;
     top:40px;
     left:0;
-    width:250px;
+    width:150px;
     height:100vh;
 
     display:flex;

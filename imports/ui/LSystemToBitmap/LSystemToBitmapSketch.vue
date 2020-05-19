@@ -93,7 +93,6 @@
 
 				//preview du prochain
 				this.flash(sketch, x, y, dir, sketch.pg);
-				console.log(dir);
 
 
 				//affichage de l'image

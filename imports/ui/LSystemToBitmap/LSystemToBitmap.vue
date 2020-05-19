@@ -27,11 +27,13 @@
       </ul>
 
 
-      <button type="button"  @click="handleSubmit" >save</button>
+      <Saving v-if="showingSaving" @save="save" v-on:close="closeSaving"></Saving>
+      <button v-else type="button"  @click="showSaving" name="enregister">Enregistrer la formule</button>
+
     </div>
 
       <DB v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
-      <button v-else type="button"  @click="showDB" name="saves">saves</button>
+      <button v-else type="button"  @click="showDB" name="saves">Charger une formule enregistrée</button>
 
   </div>
 </template>
@@ -42,7 +44,7 @@
 <script>
 import Sketch from '/imports/ui/LSystemToBitmap/LSystemToBitmapSketch.vue'
 import DB from '/imports/ui/LSystemToBitmap/LSystemToBitmapDB.vue'
-
+import Saving from '/imports/ui/LSystemToBitmap/LSystemToBitmapSaving.vue'
 
 
 export default {
@@ -51,6 +53,7 @@ export default {
     //code here...
     return {
       showingDB: false,
+      showingSaving: false,
       text: '',
       rules:[],
       nextRuleId: 0,
@@ -70,6 +73,14 @@ export default {
       this.showingDB = false;
     },
 
+    showSaving(){
+      this.showingSaving = true;
+    },
+
+    closeSaving(){
+      this.showingSaving = false;
+    },
+
     addRule(){
       this.rules.push({'rule':'', 'target':''});
       this.nextRuleId++;
@@ -86,6 +97,20 @@ export default {
         expr: this.text,
         rules: this.rules, //on envoie le tableau pas la map
         nb: this.nb,
+      });
+    },
+
+    save(name) {
+      console.log("saving", name, Meteor.user().username);
+
+      Meteor.call('insertLSystem', 
+      {
+        expr: this.text,
+        rules: this.rules, //on envoie le tableau pas la map
+        nb: this.nb,
+        name: name,
+        authorID: Meteor.userId(),
+        author: Meteor.user().username,
       });
     },
 
@@ -118,6 +143,7 @@ export default {
   components: {
     Sketch : Sketch,
     DB : DB,
+    Saving : Saving,
   },
 
 }

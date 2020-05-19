@@ -91,6 +91,8 @@ export default {
 
   mounted:function() {
 
+    
+
     //simulation d'image
     for (let i = 0; i< this.imgDim; i++) {
       this.pixels[i] = [];
@@ -176,9 +178,7 @@ export default {
       }
     }
 
-    let t = new THREE.BoxGeometry();
-    let m = new THREE.Mesh( t, meshMaterial );
-    this.scene.add(m);
+
     this.scene.add(group);
 
 

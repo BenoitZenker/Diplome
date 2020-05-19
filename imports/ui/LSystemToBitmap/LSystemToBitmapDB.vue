@@ -1,14 +1,16 @@
 <template>
   <div id="DB">
 
-    <button type="button"  @click="close" >X</button>
+    <button type="button" class="closeButton" @click="closeDB" >X</button>
 
     <div v-if="!$subReady.LSystems">Loading...</div>
 
     <div v-else>
       <ul>
-        <li v-for="elem in DBCursor" :key="elem._id" @click="$emit('set-lsystem', elem)">
-          <p>{{elem.expr}}, {{elem.rules.length}} règles, {{elem.nb}} itérations</p>
+        <li v-for="elem in DBCursor" :key="elem._id" >
+          <p @click="$emit('set-lsystem', elem)">{{elem.name}} par {{elem.author}} </p>
+          <button v-if="elem.authorID == this.Meteor.userId()" type="button" class="deleteButton" @click="deleteSave(elem)" >x</button>
+
         </li>
       </ul>
     </div>
@@ -24,9 +26,13 @@
   export default {
 
     methods:{
-      close(){
-        this.$emit("close");
+      closeDB(){
+          this.$emit("close");
       },
+      deleteSave(elem){
+        console.log("delete", elem._id);
+        Meteor.call('removeLSystem', elem._id);
+      }
     },
     
     meteor: {
@@ -57,18 +63,39 @@
   li {
     margin-left:10px;
   }
+
   #DB {
     position:fixed;
     width:600px;
-    height:500px;
+    height:600px;
     top:200px;
     right:200px;
     background-color: white;
     border:solid;
+    
+  }
+  ul {
+    overflow: scroll;
+    clear:both;
+    margin:0;
+
   }
 
-  button {
+  p { 
+    display:inline-block;
+  }
+
+  .closeButton {
+    margin-left:572px;
+  }
+
+
+
+  .deleteButton {
     float:right;
+    clear: both;
+    margin-top: 10px;
+
   }
 
 </style>

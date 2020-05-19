@@ -22,7 +22,7 @@
     position:fixed;
     top:40px;
     right:0;
-    width:250px;
+    width:150px;
     height:calc(100vh - 40px);
 
     display:flex;
