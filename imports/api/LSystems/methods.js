@@ -10,6 +10,7 @@ Meteor.methods({
 			'authorID': authorID,
 			'author': author,
 		});
+		console.log("insertion lsystem");
 	},
 
 	removeLSystem(ID) {
@@ -20,6 +21,7 @@ Meteor.methods({
 	removeAllLSystems(){
 		LSystems.remove({});
 	},
+
 
 });
 

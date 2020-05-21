@@ -1,22 +1,19 @@
 <template>
   <div id="TextToBitmap" ref="TextToBitmap">
 
+    <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
+
 
     <sketch  ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
+
     <div id="interface" class="box">
-
       <textarea v-model="text" placeholder="Votre texte..."></textarea>
-
       <button type="button"  @click="addRule" >Ajouter une règle</button>
-
       <div id="block-iterations">
         <label for="iterations">Itérations = </label>
         <input type="number" value = "1" ref="nb" name="iterations" min="0" max="16" v-model="nb">
       </div>
-
-
-
       <ul id="rules">
         <li class="rule" v-for="(rule, index) in this.rules" :key="index" >
           <textarea v-model="rule.target"></textarea>
@@ -25,18 +22,16 @@
           <button type="button" name="delete" @click="deleteRule(index)">X</button>
         </li>
       </ul>
-
-
       <Saving v-if="showingSaving" @save="save" v-on:close="closeSaving"></Saving>
       <button v-else type="button"  @click="showSaving" name="enregister">Enregistrer la formule</button>
-
       <DB v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
       <button v-else type="button"  @click="showDB" name="saves">Charger une formule enregistrée</button>
-
     </div>
 
-      
 
+    <button class="navRight" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+
+      
   </div>
 </template>
 
@@ -47,6 +42,8 @@
 import Sketch from '/imports/ui/LSystemToBitmap/LSystemToBitmapSketch.vue'
 import DB from '/imports/ui/LSystemToBitmap/LSystemToBitmapDB.vue'
 import Saving from '/imports/ui/LSystemToBitmap/LSystemToBitmapSaving.vue'
+
+import '/imports/api/JSON/JSON.js';
 
 
 export default {
@@ -65,8 +62,69 @@ export default {
   },
 
 
+
   // Vue Methods
   methods: {  
+
+    //NAVIGATION
+    toStart(){
+      this.$emit('toStart');
+    },
+
+    toBitmapTo3D(){
+
+      //création du JSON
+      let sketch = this.$refs.sketch.sketch;
+      let myObj = {
+        width: sketch.res, 
+        height: sketch.res,
+        pixels: sketch.pixels,
+      };
+
+      let myJSON = JSON.stringify(myObj);
+
+      //création du fichier
+      var f = new File([myJSON], "fromLSystem", {type:"json"});
+
+      
+
+      //préparation de l'upload
+      let upload = JSONCollection.insert({
+        file: f,
+        streams: 'dynamic',
+        chunkSize: 'dynamic',
+      }, false);
+
+      upload.on('start', function() {
+          console.log("start upload");
+        });
+
+
+
+      //le callback après l'upload
+      let afterUpload =(id)=>{  
+        console.log("in lsystem before emit");
+        console.log(JSONCollection.find({}).fetch());
+        this.$emit('toBitmapTo3D',id);
+      }
+      upload.on('uploaded', function(error, fileObj) {
+        if (error) {
+          window.alert('Error during upload: ' + error.reason);
+        } else {
+          afterUpload(fileObj._id); //appel de la fonction après upload
+          console.log("end upload")
+        }
+      });
+
+
+      //lancement de l'upload
+      upload.start();
+
+
+
+    },
+
+
 
     showDB(){
       this.showingDB = true;
@@ -208,7 +266,7 @@ export default {
     font-size: 18px;
     line-height:32px;
     height:30px;
-    width:180px;
+    width:160px;
     margin:0;
   }
   .rule button {

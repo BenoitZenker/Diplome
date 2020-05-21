@@ -28,3 +28,15 @@ textarea{
     font-family: "Courier New", Courier, monospace, sans-serif;
     font-size:16px;
 }
+
+.navLeft {
+position:absolute;
+top:50%;
+left:0;
+}
+
+.navRight{
+position:absolute;
+top:50%;
+right:0;
+}

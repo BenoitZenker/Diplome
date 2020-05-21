@@ -11,20 +11,19 @@
     <Login></Login>
 
     <button type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <button type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+    <button type="button"  @click="toBitmapTo3D('')" >BitmapTo3D</button>
   </div>
 
 
+
   <div v-else-if="globalState == 'lSystemToBitmap'">
-    <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
-    <LSystemToBitmap></LSystemToBitmap>
-    <button class="navRight" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+    <LSystemToBitmap @toStart="toStart" @toBitmapTo3D="toBitmapTo3D"></LSystemToBitmap>
   </div>
 
 
   <div v-else-if="globalState == 'BitmapTo3D'">
     <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <BitmapTo3D></BitmapTo3D> 
+    <BitmapTo3D :bitmapID="bitmapID"></BitmapTo3D> 
     <button class="navRight" type="button" @click="toStart" >Retour au menu</button>
   </div>
 
@@ -58,6 +57,8 @@ export default {
     return {
       globalState:"start",
       //etats : start, lSystemToBitmap, BitmapTo3D
+
+      bitmapID:"jvE65ssMb67cnwyij",
     }
   },
 
@@ -67,7 +68,9 @@ export default {
     },
 
     //gestion des changements d'états
-    toBitmapTo3D(){
+    toBitmapTo3D(id){
+      if (id)
+        this.bitmapID = id;
       this.globalState = "BitmapTo3D"
     },
 
@@ -104,16 +107,6 @@ export default {
 
 
 <style scoped>
-  .navLeft {
-    position:absolute;
-    top:50%;
-    left:0;
-  }
 
-  .navRight{
-    position:absolute;
-    top:50%;
-    right:0;
-  }
 
 </style>

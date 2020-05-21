@@ -4,23 +4,31 @@
 
 <script>
 	import VueP5 from 'vue-p5';
+	
 	 
 	export default {
 
 		methods: {
 		    setup(sketch) {
+
+		    	this.sketch = sketch;
+
 		      sketch.background('white');
-		      sketch.resizeCanvas(this.parentWidth, 800);
+		      sketch.resizeCanvas(this.parentWidth, 740);
 
 		      //l'animtion du pixel suivant
 		      sketch.s=20;
 		      sketch.timer = 0;
 		      sketch.isFlashing = true;
 
-		      sketch.size = 800;	//taille de l'image
+		      sketch.size = 740;	//taille de l'image
 		      sketch.border = 2;	//epaisseur du cadre pour l'affichage
-		      sketch.pixelSize = sketch.size/32;
+		      sketch.res = 8;
+		      sketch.pixelSize = sketch.size/sketch.res;
 		      sketch.pg = sketch.createGraphics(sketch.size, sketch.size);
+
+		      //tous les pixels de l'image
+		      sketch.pixels = [];
 	    	},
 
 
@@ -39,6 +47,8 @@
 				let y = 0;
 				let dir = 0;
 
+				sketch.pixels = new Array(sketch.res * sketch.res)
+
 				
 				//l'image
 				sketch.pg.background('white');
@@ -47,6 +57,7 @@
 
 
 				let nodes = [];
+
 				for (var i = 0; i < this.turtle.length; i++) {
 					let c = this.turtle.charAt(i);
 					if (c == '+') {
@@ -77,7 +88,8 @@
 						sketch.pg.rect(x, y, sketch.pixelSize, sketch.pixelSize);
 						x = this.nextX(sketch, x, dir);
 						y = this.nextY(sketch, y, dir);
-						
+						//sauvegarde de l'état du pixel
+						sketch.pixels[(x/sketch.pixelSize)*sketch.res + y/sketch.pixelSize] = true;
 					}
 
 					//boucle si on dépasse du cadre
@@ -98,6 +110,8 @@
 				//affichage de l'image
 				sketch.rectMode(sketch.CENTER);
 				sketch.image(sketch.pg, (sketch.width-sketch.pg.width)/2, (sketch.height-sketch.pg.height)/2);
+
+
 				
 	    	},
 
@@ -115,7 +129,7 @@
 				return x;
 	    	},
 
-
+	    	
 	    	flash(sketch, x, y, dir, pg) {
 	    		if (sketch.millis()-sketch.timer > 100) {
 	    			sketch.timer=sketch.millis();
@@ -137,6 +151,16 @@
 						sketch.pg.ellipse(x+4,y+sketch.pixelSize/2,4,4);
 				}
 	    	},
+
+	    	exportBitmap(){
+	    		console.log("saving img");
+	    		let json = {};
+	    		json.width = this.sketch.res;
+	    		json.height = this.sketch.res;
+	    		this.sketch.saveJSON(json, 'img.json');
+	    	},
+
+	    	
 
 	  	},
 
