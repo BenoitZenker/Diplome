@@ -1,7 +1,8 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
-  <div ref="three" id="three"></div>
+ 
   <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
+   <div ref="three" id="three"></div>
   <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
   </div>
 </template>
@@ -11,6 +12,7 @@
 
   import THREE from 'three';
   import OrbitControls from 'orbit-controls-es6';
+  import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
   import P5Sketch from '/imports/ui/BitmapTo3D/BitmapTo3DSketch.vue'
 
@@ -30,7 +32,8 @@ export default {
       camera: Object,
       renderer: Object,
       controls: Object,
-      cubes:[],
+      cubes:[], //les cubes dans un tableau à 3 dimensions
+      cubesArray:[], //les cubes dans un tableau à une seule dimension
       lines:[],
 
       id:undefined, //requestanimationframe
@@ -64,7 +67,7 @@ export default {
 
     handleResize:function(){
       this.height = this.$el.clientHeight;
-      this.width = this.$el.clientWidth;
+      this.width = this.$el.clientWidth/2;
 
       console.log("resize, ", this.width,this.height)
       this.renderer.setSize(this.width, this.height);
@@ -106,7 +109,7 @@ export default {
 
     this.renderer = new THREE.WebGLRenderer();
     //this.renderer.setSize( this.$el.clientWidth, this.$el.clientHeight );
-    this.renderer.setClearColor( 0xffffff);
+    this.renderer.setClearColor( 0xc8c8c8);
     this.$refs.three.appendChild( this.renderer.domElement );
 
     //les dimensions sont bonnes car ce code est appelé après avoir chargé le fichier, il y a donc un délai qui assure que le css a été chargé. par contre c'est pas clair le setsize, à revoir
@@ -127,7 +130,7 @@ export default {
     //group.rotateY(0.2);
 
 
-    let geometry = new THREE.BoxGeometry();
+    let geometry = new THREE.BoxBufferGeometry();
     let edges = new THREE.EdgesGeometry( geometry );
     let meshMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
     let lineMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
@@ -142,16 +145,22 @@ export default {
 
 
           //le mesh
-          let cube = new THREE.Mesh( geometry, meshMaterial );
+          //let cube = new THREE.Mesh( geometry, meshMaterial );
 
+          let cube = geometry.clone();
+          cube.translate(x, y, z);
+
+          /*
           cube.position.x = x;
           cube.position.y = y;
           cube.position.z = z;
-
+          */
           cube.visible = false;
+          
 
-          group.add(cube);
+          //group.add(cube);
           this.cubes[y][z][x] = cube;
+          this.cubesArray.push(cube);
 
 
           //les aretes
@@ -163,14 +172,17 @@ export default {
 
           wireframe.visible = false;
 
-          group.add(wireframe);
+          //group.add(wireframe);
           this.lines[y][z][x] = wireframe;
         }
       }
     }
 
 
-    this.scene.add(group);
+    console.log(this.cubesArray);
+    let merge = BufferGeometryUtils.mergeBufferGeometries( this.cubesArray, true );
+    let mesh = new THREE.Mesh( merge, meshMaterial );
+    this.scene.add(mesh);
 
 
 
@@ -253,7 +265,19 @@ export default {
 
   #sketch {
     position:fixed;
-    bottom:20px;
+    top:20px;
+    width:100%;
+  }
+
+  #three {
+    margin-left:auto;
+    margin-right: auto;
+    width:50%;
+
+    
+  }
+  #canvas {
+    background-color: grey;
   }
 
 </style>

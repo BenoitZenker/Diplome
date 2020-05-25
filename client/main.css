@@ -1,10 +1,12 @@
 body {
   font-family: "Courier New", Courier, monospace, sans-serif;
+  margin:0;
+  padding: 0;
 }
 
 button, input {
 	font-family: "Courier New", Courier, monospace, sans-serif;
-	font-size:16px;
+	font-size:14px;
     height:32px;
     border-radius:0;
     color:black;
@@ -24,19 +26,37 @@ textarea{
 
 .box {
     background-color: white;
-    border:solid;
+    /*opacity:0.8;*/
+    /*border:solid;*/
     font-family: "Courier New", Courier, monospace, sans-serif;
-    font-size:16px;
+    font-size:14px;
 }
 
 .navLeft {
 position:absolute;
-top:50%;
-left:0;
+top:90%;
+-ms-transform: translate(0, -50%);
+transform: translate(0, -50%);
+left:10px;
+background-color: #c5e6f0;
 }
 
 .navRight{
 position:absolute;
-top:50%;
-right:0;
+top:90%;
+right:10px;
+-ms-transform: translate(0, -50%);
+transform: translate(0, -50%);
+background-color: #c5e6f0;
 }
+
+.navRight:hover, .navLeft:hover {
+  background-color: white;
+}
+
+.closeButton {
+    background-color: black;
+    color:white;
+    font-weight: bold;
+    font-size:18px;
+  }

@@ -14,7 +14,7 @@
 		    	this.sketch = sketch;
 
 		      sketch.background('white');
-		      sketch.resizeCanvas(this.parentWidth, 740);
+		      sketch.resizeCanvas(this.parentWidth, this.parentHeight);
 
 		      //l'animtion du pixel suivant
 		      sketch.s=20;
@@ -39,7 +39,7 @@
 				//la bordure
 				sketch.fill('black');
 				sketch.rectMode(sketch.CENTER);
-				sketch.rect(sketch.width/2, sketch.height/2, sketch.size+sketch.border,sketch.size+sketch.border);
+				//sketch.rect(sketch.width/2, sketch.height/2, sketch.size+sketch.border,sketch.size+sketch.border);
 
 				
 
@@ -51,7 +51,7 @@
 
 				
 				//l'image
-				sketch.pg.background('white');
+				sketch.pg.background(sketch.color(200, 200, 200));
 				sketch.pg.noStroke();
 				sketch.pg.fill('black');
 

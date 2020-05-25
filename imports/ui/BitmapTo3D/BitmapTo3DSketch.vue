@@ -17,7 +17,7 @@
 		methods: {
 		    setup(sketch) {
 		      sketch.background('white');
-		      sketch.resizeCanvas(410,200);
+		      sketch.resizeCanvas(this.$el.clientWidth,200);
 
 		      this.pixels = [];
 		      for (let i =0; i< this.imgDim; i++){
@@ -32,14 +32,18 @@
 
 
 	    	draw(sketch) {
+
+	    		let marginA = 10;
+	    		let marginB = sketch.width-210;
+	    		let marginY = 0;
 	    		
 
 
 				sketch.fill('white');
 				sketch.strokeWeight(2);
 				sketch.stroke('black');
-				sketch.rect(0,0, 200, 200);
-				sketch.rect(210,0, 200, 200);
+				sketch.rect(marginA,-marginY, 200, 200);
+				sketch.rect(marginB,-marginY, 200, 200);
 
 
 				sketch.noStroke();
@@ -48,7 +52,7 @@
 				for (let y =0; y< this.imgDim; y++){
 		      		for (let x=0; x<this.imgDim; x++)
 		      			if (this.pixels[y][x])
-		      				sketch.rect(x*this.pixSize, y*this.pixSize, this.pixSize, this.pixSize);
+		      				sketch.rect(marginA + x*this.pixSize, y*this.pixSize, this.pixSize, this.pixSize);
 		     	}
 
 
@@ -59,7 +63,7 @@
 		    		for (let y =this.imgDim-1; y>=0 ; y--){
 			      		for (let x=this.imgDim-1; x>=0; x--)
 			      			if (this.pixelsOG[y][x])
-			      				sketch.rect(210 + (this.imgDim-(x+1))*this.pixSize, (this.imgDim -(y+1))*this.pixSize, this.pixSize, this.pixSize);
+			      				sketch.rect(marginB + (this.imgDim-(x+1))*this.pixSize, (this.imgDim -(y+1))*this.pixSize, this.pixSize, this.pixSize);
 			     	}
 		     	}
 

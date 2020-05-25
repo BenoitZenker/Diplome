@@ -10,8 +10,10 @@
   <div v-else-if="globalState == 'start'">
     <Login></Login>
 
-    <button type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
+    <button class="menuButton" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
+    <!--
     <button type="button"  @click="toBitmapTo3D('')" >BitmapTo3D</button>
+    -->
   </div>
 
 
@@ -108,5 +110,20 @@ export default {
 
 <style scoped>
 
+.menuButton {
+
+  margin-top: 40px;
+
+  text-align: center;
+  position: absolute;
+  left:50%;
+  -ms-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+
+  background-color: #c5e6f0;
+}
+.menuButton:hover {
+  background-color: white;
+}
 
 </style>

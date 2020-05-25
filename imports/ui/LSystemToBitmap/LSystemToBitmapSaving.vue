@@ -1,5 +1,5 @@
 <template>
-  <div id="Saving">
+  <div id="Saving" class="box">
 
     <button class= "closeButton" type="button"  @click="close" >X</button>
 
@@ -52,12 +52,10 @@
   }
   #Saving {
     position:fixed;
-    width:600px;
-    height:300px;
-    top:200px;
-    left:400px;
-    background-color: white;
-    border:solid;
+    width:25%;
+    height:80%;
+    top:0;
+    right:10px;
   }
 
   .closeButton {

@@ -1,5 +1,5 @@
 <template>
-  <div id="DB">
+  <div id="DB" class="box">
 
     <button type="button" class="closeButton" @click="closeDB" >X</button>
 
@@ -66,16 +66,14 @@
 
   #DB {
     position:fixed;
-    width:600px;
-    height:600px;
-    top:200px;
-    right:200px;
-    background-color: white;
-    border:solid;
-    
+    width:25%;
+    height:80%;
+    top:0;
+    right:10px;
   }
+
   ul {
-    overflow: scroll;
+    /*overflow-y: scroll;*/
     clear:both;
     margin:0;
 
@@ -86,7 +84,7 @@
   }
 
   .closeButton {
-    margin-left:572px;
+    float:right;
   }
 
 

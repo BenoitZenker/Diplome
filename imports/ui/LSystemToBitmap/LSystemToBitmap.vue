@@ -4,10 +4,16 @@
     <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
 
 
-    <sketch  ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
+    <sketch  v-if="docReady" ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
 
 
     <div id="interface" class="box">
+      <div id="instructions">
+          <p>Saisissez des caractères pour tracer des pixels.</p>
+          <p>Les carcatères '+' et '-' changent de direction, les caractères '[' et ']' ouvrent et ferment des branches.</p>
+          <p>Indiquez des règles de remplacement pour transformer le texte.</p>
+          <p>Vous pouvez charger des modèles enregistrés, ou sauvegarder votre texte.</p>
+      </div>
       <textarea v-model="text" placeholder="Votre texte..."></textarea>
       <button type="button"  @click="addRule" >Ajouter une règle</button>
       <div id="block-iterations">
@@ -57,6 +63,7 @@ export default {
       rules:[],
       nextRuleId: 0,
       nb: 1,
+      docReady:false,
 
     }
   },
@@ -187,17 +194,18 @@ export default {
     //TODO!!!!!! ref n'est pas réactif!!!!!
     //*******************************************************************
     getWidth(){
-      if (this.$refs.TextToBitmap)
-        return this.$refs.TextToBitmap.clientWidth;
-      else
-        return 1080;
+      console.log(window.innerHeight)
+        return window.innerWidth;
+
     },
     getHeight(){
-      if (this.$refs.TextToBitmap)
-        return this.$refs.TextToBitmap.clientHeight;
-      else
-        return 1080;
+      return window.innerHeight;
     }
+  },
+
+  mounted:function() {
+    this.docReady=true;
+    console.log("LSystem mounted, ", this.docReady)
   },
 
   components: {
@@ -231,8 +239,8 @@ export default {
 
   textarea {
     width:99%;
-    height:60px;
-    font-size: 18px;
+    height:160px;
+    font-size: 14px;
     margin-bottom: 8px;
   }
 
@@ -252,11 +260,11 @@ export default {
 
 
   #interface {
-    overflow: scroll;
+    /*overflow-y: scroll;*/
     width: 25%;
     position:absolute;
-    left:50%;
-    top:50%;
+    left:10px;
+    top:0%;
   }
 
   #rules {
@@ -274,5 +282,8 @@ export default {
     clear:both;
   }
 
+  #instructions {
+    background-color: #faf6c0;
+  }
 
 </style>
