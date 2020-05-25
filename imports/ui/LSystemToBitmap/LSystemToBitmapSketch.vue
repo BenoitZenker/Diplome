@@ -11,25 +11,25 @@
 		methods: {
 		    setup(sketch) {
 
-		    	this.sketch = sketch;
+		    this.sketch = sketch;
 
-		      sketch.background('white');
-		      sketch.resizeCanvas(this.parentWidth, this.parentHeight);
+		    sketch.background('white');
+		    sketch.resizeCanvas(this.parentWidth, this.parentHeight);
 
-		      //l'animtion du pixel suivant
-		      sketch.s=20;
-		      sketch.timer = 0;
-		      sketch.isFlashing = true;
+		    //l'animtion du pixel suivant
+		    sketch.s=20;
+		    sketch.timer = 0;
+		    sketch.isFlashing = true;
 
-		      sketch.size = 740;	//taille de l'image
-		      sketch.border = 2;	//epaisseur du cadre pour l'affichage
-		      sketch.res = 8;
-		      sketch.pixelSize = sketch.size/sketch.res;
-		      sketch.pg = sketch.createGraphics(sketch.size, sketch.size);
+		    sketch.size = 740;	//taille de l'image
+		    sketch.border = 2;	//epaisseur du cadre pour l'affichage
+		    sketch.res = 16;
+		    sketch.pixelSize = sketch.size/sketch.res;
+		    sketch.pg = sketch.createGraphics(sketch.size, sketch.size);
 
-		      //tous les pixels de l'image
-		      sketch.pixels = [];
-	    	},
+		    //tous les pixels de l'image
+		    sketch.pixels = [];
+	    },
 
 
 	    	draw(sketch) {
@@ -88,8 +88,11 @@
 						sketch.pg.rect(x, y, sketch.pixelSize, sketch.pixelSize);
 						x = this.nextX(sketch, x, dir);
 						y = this.nextY(sketch, y, dir);
+
 						//sauvegarde de l'état du pixel
-						sketch.pixels[(x/sketch.pixelSize)*sketch.res + y/sketch.pixelSize] = true;
+						//ligne par ligne (y=0, y= 1, etc...)
+						sketch.pixels[(y/sketch.pixelSize)*sketch.res + x/sketch.pixelSize] = true;
+
 					}
 
 					//boucle si on dépasse du cadre
@@ -152,6 +155,7 @@
 				}
 	    	},
 
+	    	/*
 	    	exportBitmap(){
 	    		console.log("saving img");
 	    		let json = {};
@@ -159,7 +163,7 @@
 	    		json.height = this.sketch.res;
 	    		this.sketch.saveJSON(json, 'img.json');
 	    	},
-
+			*/
 	    	
 
 	  	},

@@ -56,18 +56,16 @@
 		     	}
 
 
-
-
 		     	//affichage pixels de base
 		     	if (this.pixelsOG.length > 0) {
-		    		for (let y =this.imgDim-1; y>=0 ; y--){
-			      		for (let x=this.imgDim-1; x>=0; x--)
+		    		for (let y=0; y<this.imgDim; y++){
+			      		for (let x=0; x<this.imgDim; x++)
 			      			if (this.pixelsOG[y][x])
-			      				sketch.rect(marginB + (this.imgDim-(x+1))*this.pixSize, (this.imgDim -(y+1))*this.pixSize, this.pixSize, this.pixSize);
+			      				//on inverse le y à nouveau
+			      				sketch.rect(marginB + x*this.pixSize,(this.imgDim-(y+1))*this.pixSize, this.pixSize, this.pixSize);
 			     	}
 		     	}
-
-				
+			
 	    	},
 
 	    	mouseclicked(sketch) {

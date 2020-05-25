@@ -1,9 +1,12 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
  
-  <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
-   <div ref="three" id="three"></div>
-  <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
+    <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
+     <div ref="three" id="three"></div>
+    <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
+
+    <button class="navRight" type="button" @click="toBitmap" >3D vers Bitmap</button>
+
   </div>
 </template>
 
@@ -36,9 +39,14 @@ export default {
       cubesArray:[], //les cubes dans un tableau à une seule dimension
       lines:[],
 
+      cubeGeometry: Object,
+      cubeMaterial: Object,
+      geometry: Object, //tous les cubes mergés
+      mesh: Object,
+
       id:undefined, //requestanimationframe
 
-      imgDim: 8,
+      imgDim: 16,
       pixels:[],
       pixelsP5:[],
     }
@@ -52,16 +60,40 @@ export default {
   // Vue Methods
   methods: {  
 
+    toBitmap:function(){
+      this.$emit('toBitmap')
+    },
+
+    //rajout d'un pixel aux coordonnées x, y
     updateP5Image:function(x,y){
 
       //update the image
       this.pixelsP5[y][x] = true;
 
-      //change 3D
-      for (let z=0; z< this.imgDim; z++) {
-        this.cubes[y][z][x].visible = this.pixels[z][x];
-        this.lines[y][z][x].visible = this.pixels[z][x];
+      //update de la 3D
+      for (let z=0; z<this.imgDim; z++) {
+
+        if (this.pixels[y][z]) {
+          //on crée un cube
+          let cube = this.cubeGeometry.clone();
+          cube.translate(x, y, z);
+          this.cubesArray.push(cube);
+        }
       }
+
+      //on supprime la géo précédente
+      this.scene.remove(this.mesh);
+      if (this.geometry)
+        this.geometry.dispose();
+      this.renderer.renderLists.dispose();
+      console.log("dispose")
+
+      //on merge les géométries
+      this.geometry = BufferGeometryUtils.mergeBufferGeometries( this.cubesArray, true );
+      this.geometry.translate(-this.imgDim/2,-this.imgDim/2,-this.imgDim/2);
+      this.mesh = new THREE.Mesh( this.geometry, this.cubeMaterial );
+      this.scene.add(this.mesh);
+
     },
 
 
@@ -122,73 +154,19 @@ export default {
     //*******************************************************************
     //creation des géométries
     //*******************************************************************
-    //crée tous les cubes
-    let group = new THREE.Group();
-    group.position.x = -this.imgDim/2 + 0.5;
-    group.position.y = -this.imgDim/2 + 0.5;
-    group.position.z = -this.imgDim/2 + 0.5;
-    //group.rotateY(0.2);
 
+    this.cubeGeometry = new THREE.BoxBufferGeometry();
+    this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff } );
+    this.geometry = null;
 
-    let geometry = new THREE.BoxBufferGeometry();
-    let edges = new THREE.EdgesGeometry( geometry );
-    let meshMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
-    let lineMaterial = new THREE.LineBasicMaterial( { color: 0xffffff, linewidth: 2 } );
-
-    for (let y=0; y< this.imgDim; y++) {
-      this.cubes[y] = [];
-      this.lines[y] = [];
-      for (let z=0; z< this.imgDim; z++) {
-        this.cubes[y][z] = []
-        this.lines[y][z] = []
-        for (let x=0; x< this.imgDim; x++) {
-
-
-          //le mesh
-          //let cube = new THREE.Mesh( geometry, meshMaterial );
-
-          let cube = geometry.clone();
-          cube.translate(x, y, z);
-
-          /*
-          cube.position.x = x;
-          cube.position.y = y;
-          cube.position.z = z;
-          */
-          cube.visible = false;
-          
-
-          //group.add(cube);
-          this.cubes[y][z][x] = cube;
-          this.cubesArray.push(cube);
-
-
-          //les aretes
-          let wireframe = new THREE.LineSegments( edges, lineMaterial );
-
-          wireframe.position.x = x;
-          wireframe.position.y = y;
-          wireframe.position.z = z;
-
-          wireframe.visible = false;
-
-          //group.add(wireframe);
-          this.lines[y][z][x] = wireframe;
-        }
-      }
-    }
-
-
-    console.log(this.cubesArray);
-    let merge = BufferGeometryUtils.mergeBufferGeometries( this.cubesArray, true );
-    let mesh = new THREE.Mesh( merge, meshMaterial );
-    this.scene.add(mesh);
-
-
-
-    this.camera.position.z = -this.imgDim;
-    this.camera.position.y = this.imgDim/2;
-
+    //lumières
+    var spotLight = new THREE.SpotLight( 0xffffff );
+    spotLight.position.set( -10, 3, 30, 100 );
+    this.scene.add(spotLight);
+   
+    this.camera.position.z = this.imgDim*1.2;
+    //this.camera.position.y = this.imgDim*0.6;
+   
 
     //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
     this.id = window.requestAnimationFrame( this.animate);
@@ -205,7 +183,6 @@ export default {
 
       //création de l'image à partir de l'id du json fournie
       let myJSON = JSONCollection.findOne({_id:this.bitmapID});
-
       var req = new XMLHttpRequest();
       req.onreadystatechange = ()=> { //calllback, une fois que le fichier est chargé
           if (req.readyState == XMLHttpRequest.DONE) {
@@ -215,14 +192,16 @@ export default {
 
 
               //création de l'image
-              for (let i = data.width-1; i>=0; i--) {
-              this.pixels[i] = [];
-              this.pixelsP5[i] = [];
-               for (let j = data.height-1; j>=0; j--) {
-                this.pixelsP5[i][j] = false;
-                this.pixels[i][j] = data.pixels[j*data.width+i];
+              for (let y=0; y<data.height; y++) {
+                this.pixels[y] = [];
+                this.pixelsP5[y] = [];
+                for (let x=0; x<data.width; x++) {
+                  this.pixelsP5[y][x] = false;
+                  //on inverse le Y
+                  this.pixels[y][x] = data.pixels[(data.height -(y+1))*data.width+x];
+
+                }
               }
-            }
 
             //création de la scène 3D
             this.setup3D();

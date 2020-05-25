@@ -25,8 +25,14 @@
 
   <div v-else-if="globalState == 'BitmapTo3D'">
     <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <BitmapTo3D :bitmapID="bitmapID"></BitmapTo3D> 
-    <button class="navRight" type="button" @click="toStart" >Retour au menu</button>
+    <BitmapTo3D :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
+
+  </div>
+
+  <div v-else-if="globalState == 'toBitmap'">
+    <button class="navLeft" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+    <button class="navRIght" type="button"  @click="toStart" >Menu</button>
+
   </div>
 
     
@@ -79,6 +85,11 @@ export default {
     toLSystemToBitmap(){
       this.globalState = "lSystemToBitmap"
     },
+
+    toBitmap(){
+      this.globalState = "toBitmap"
+    },
+
     toStart(){
       this.globalState = "start"
     }
