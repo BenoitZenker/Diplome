@@ -66,10 +66,8 @@
 
   #DB {
     position:fixed;
-    width:25%;
-    height:80%;
     top:0;
-    right:10px;
+    right:0;
   }
 
   ul {

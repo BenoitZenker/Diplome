@@ -4,10 +4,10 @@
     <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
 
 
-    <sketch  v-if="docReady" ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :parentWidth="getWidth" :parentHeight="getHeight"></sketch>
+    <sketch  id="sketch" v-if="docReady" ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :width="baseDimension*2" :height="baseDimension*2" :style="sketchStyle"></sketch>
 
 
-    <div id="interface" class="box">
+    <div id="interface" class="box" :style="interfaceStyle">
       <div id="instructions">
           <p>Saisissez des caractères pour tracer des pixels.</p>
           <p>Les carcatères '+' et '-' changent de direction, les caractères '[' et ']' ouvrent et ferment des branches.</p>
@@ -28,10 +28,13 @@
           <button type="button" name="delete" @click="deleteRule(index)">X</button>
         </li>
       </ul>
+
       <Saving v-if="showingSaving" @save="save" v-on:close="closeSaving"></Saving>
       <button v-else type="button"  @click="showSaving" name="enregister">Enregistrer la formule</button>
-      <DB v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
+
+      <DB :style="DBStyle" v-if="showingDB" @set-lsystem="setLSystem" v-on:close="closeDB"></DB>
       <button v-else type="button"  @click="showDB" name="saves">Charger une formule enregistrée</button>
+
     </div>
 
 
@@ -66,6 +69,10 @@ export default {
       docReady:false,
 
     }
+  },
+
+  props: {
+    baseDimension:Number,
   },
 
 
@@ -190,22 +197,34 @@ export default {
 
 
   computed: {
-    //*******************************************************************
-    //TODO!!!!!! ref n'est pas réactif!!!!!
-    //*******************************************************************
-    getWidth(){
-      console.log(window.innerHeight)
-        return window.innerWidth;
 
+    interfaceStyle(){
+      console.log(this.baseDimension);
+      return {
+        'width': this.baseDimension+'px',
+        'height':this.baseDimension*1.5+'px',
+      }
     },
-    getHeight(){
-      return window.innerHeight;
-    }
+
+    sketchStyle(){
+      return{
+        'margin-left': this.baseDimension+'px',
+        'width': this.baseDimension*2+'px',
+        'height': this.baseDimension*2+'px',
+      }
+    },
+
+    DBStyle(){
+      return {
+        'width': this.baseDimension+'px',
+        'height':this.baseDimension*1.5+'px',
+      }
+    },
   },
 
   mounted:function() {
+    console.log("monting LSystemToBitmap")
     this.docReady=true;
-    console.log("LSystem mounted, ", this.docReady)
   },
 
   components: {
@@ -223,11 +242,18 @@ export default {
 <style scoped>
 
   #TextToBitmap {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    
+    margin:0;
+    padding:0;
   }
+
+  #interface {
+    position: absolute;
+    top:0;
+    overflow-y:scroll;
+    overflow-x: hidden;
+  }
+
+
 
 
   #block-iterations {
@@ -244,9 +270,6 @@ export default {
     margin-bottom: 8px;
   }
 
-  canvas {
-    width:100%;
-  }
 
   ul {
     margin:0;
@@ -259,13 +282,7 @@ export default {
 
 
 
-  #interface {
-    /*overflow-y: scroll;*/
-    width: 25%;
-    position:absolute;
-    left:10px;
-    top:0%;
-  }
+
 
   #rules {
     margin-bottom:40px;

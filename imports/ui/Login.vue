@@ -16,8 +16,8 @@
 <style scoped>
 
 #Login {
-	text-align: center;
 	margin-top:200px;
+	text-align: center;
 }
 
 

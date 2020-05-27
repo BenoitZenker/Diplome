@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div id="App" ref="App" :style="AppStyle">
+
     
 
   <div v-if="!isLogged()">
@@ -19,20 +20,20 @@
 
 
   <div v-else-if="globalState == 'lSystemToBitmap'">
-    <LSystemToBitmap @toStart="toStart" @toBitmapTo3D="toBitmapTo3D"></LSystemToBitmap>
+    <LSystemToBitmap :baseDimension="baseDimension" @toStart="toStart" @toBitmapTo3D="toBitmapTo3D"></LSystemToBitmap>
   </div>
 
 
   <div v-else-if="globalState == 'BitmapTo3D'">
     <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <BitmapTo3D :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
+    <BitmapTo3D :baseDimension="baseDimension" :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
 
   </div>
 
   <div v-else-if="globalState == 'toBitmap'">
     <button class="navLeft" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+    <toBitmap v-bind:cubes="this.cubes"></toBitmap> 
     <button class="navRIght" type="button"  @click="toStart" >Menu</button>
-
   </div>
 
     
@@ -54,6 +55,7 @@ import TraductionMap from '/imports/ui/TraductionMap.vue'
 import LSystemToBitmap from '/imports/ui/LSystemToBitmap/LSystemToBitmap.vue'
 import BitmapTo3D from '/imports/ui/BitmapTo3D/BitmapTo3D.vue'
 import Login from '/imports/ui/Login.vue'
+import toBitmap from '/imports/ui/toBitmap/toBitmap.vue'
 
 
 
@@ -63,14 +65,55 @@ export default {
 
   data() {
     return {
+      name:"mon nom",
+      width:Number,
+      height:Number,
+      baseDimension:Number,
+      appWidth:Number,
+      appHeight:Number,
+
       globalState:"start",
       //etats : start, lSystemToBitmap, BitmapTo3D
 
       bitmapID:"jvE65ssMb67cnwyij",
+
+      cubes:[],
+
     }
+  },
+  computed: {
+    //le style css
+    AppStyle:function() {
+      return {
+        'width': this.appWidth + 'px',
+        'height':this.appHeight+'px',
+      }
+    },
   },
 
   methods: {
+
+    handleResize(){
+      console.log("handleResize from App")
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      
+
+      if (this.height < this.width/2) {
+        this.baseDimension = this.height/2;
+      }
+      else {
+        this.baseDimension = this.width/4;
+      }
+
+      this.appWidth = this.baseDimension*4;
+      this.appHeight = this.baseDimension*2;
+
+ 
+
+    },
+
+
     isLogged(){
       return !!this.currentUser
     },
@@ -79,6 +122,7 @@ export default {
     toBitmapTo3D(id){
       if (id)
         this.bitmapID = id;
+      console.log("in menu", this.bitmapID);
       this.globalState = "BitmapTo3D"
     },
 
@@ -86,8 +130,10 @@ export default {
       this.globalState = "lSystemToBitmap"
     },
 
-    toBitmap(){
-      this.globalState = "toBitmap"
+    toBitmap(cubes){
+      console.log("in menu, ", cubes);
+      this.globalState = "toBitmap";
+      this.cubes = cubes;
     },
 
     toStart(){
@@ -103,6 +149,11 @@ export default {
     }
   },
 
+  mounted:function(){
+    this.handleResize();  //init les dimensions
+    window.addEventListener('resize', this.handleResize);
+  },
+
 
   components: {
     TraductionMap : TraductionMap,
@@ -111,6 +162,7 @@ export default {
     LSystemToBitmap : LSystemToBitmap,
     BitmapTo3D : BitmapTo3D,
     Login : Login,
+    toBitmap : toBitmap,
   },
 }
 
@@ -120,6 +172,20 @@ export default {
 
 
 <style scoped>
+
+#App {
+  background-color: rgba(220, 220, 220, 1);
+  background-image: linear-gradient(rgba(0, 0, 0, .1) 2px, transparent 2px), linear-gradient(90deg,rgba(0, 0, 0, .1) .2px, transparent 2px);
+  background-size: 12.5% 25%;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+
 
 .menuButton {
 

@@ -2,7 +2,7 @@
   <div id="BitmapTo3D" ref="BitmapTo3D">
  
     <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
-     <div ref="three" id="three"></div>
+     <div :style="threeStyle" ref="three" id="three"></div>
     <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
 
     <button class="navRight" type="button" @click="toBitmap" >3D vers Bitmap</button>
@@ -28,9 +28,6 @@ export default {
   data() {
     return {
 
-      width:1600,
-      height:800,
-
       scene:Object,
       camera: Object,
       renderer: Object,
@@ -54,6 +51,7 @@ export default {
 
   props: {
     bitmapID: String,
+    baseDimension:Number,
   },
 
 
@@ -61,7 +59,7 @@ export default {
   methods: {  
 
     toBitmap:function(){
-      this.$emit('toBitmap')
+      this.$emit('toBitmap', this.cubesArray);
     },
 
     //rajout d'un pixel aux coordonnées x, y
@@ -98,13 +96,10 @@ export default {
 
 
     handleResize:function(){
-      this.height = this.$el.clientHeight;
-      this.width = this.$el.clientWidth/2;
 
-      console.log("resize, ", this.width,this.height)
-      this.renderer.setSize(this.width, this.height);
-      this.camera.aspect = this.width/this.height;
-      this.camera.updateProjectionMatrix();
+      console.log("resize, ", this.baseDimension);
+      this.renderer.setSize(this.baseDimension*2, this.baseDimension*2);
+
 
     },
 
@@ -139,15 +134,15 @@ export default {
     //empêche le scroll
     this.controls.enableZoom = false;
 
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer({ alpha: true });
     //this.renderer.setSize( this.$el.clientWidth, this.$el.clientHeight );
-    this.renderer.setClearColor( 0xc8c8c8);
+    this.renderer.setClearColor( 0xffffff, 0.5 ); 
     this.$refs.three.appendChild( this.renderer.domElement );
 
     //les dimensions sont bonnes car ce code est appelé après avoir chargé le fichier, il y a donc un délai qui assure que le css a été chargé. par contre c'est pas clair le setsize, à revoir
-    this.renderer.setSize(this.width, this.height);
+    this.renderer.setSize(this.baseDimension*2, this.baseDimension*2);
     window.addEventListener('resize', this.handleResize);
-    this.handleResize();
+    //this.handleResize();
 
 
 
@@ -177,6 +172,8 @@ export default {
 
 
   mounted:function() {
+
+    console.log("mounting bitmapTo3D");
 
     //wait for db to be loaded
     Meteor.subscribe("files.JSONCollection.all", ()=>{
@@ -225,7 +222,13 @@ export default {
 
 
   computed:{
+    threeStyle:function(){
+      return{
+        'margin-left': this.baseDimension+'px',
+      }
+    },
   },
+
   components: {
     P5Sketch: P5Sketch,
   },
@@ -239,7 +242,6 @@ export default {
 <style scoped>
 
   #BitmapTo3D {
-    width: 100vw;
   }
 
   #sketch {
@@ -248,13 +250,7 @@ export default {
     width:100%;
   }
 
-  #three {
-    margin-left:auto;
-    margin-right: auto;
-    width:50%;
 
-    
-  }
   #canvas {
     background-color: grey;
   }

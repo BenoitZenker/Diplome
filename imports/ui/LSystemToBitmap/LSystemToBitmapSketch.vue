@@ -9,19 +9,26 @@
 	export default {
 
 		methods: {
+			handleResize(){
+				this.sketch.resizeCanvas(this.width, this.height);
+				this.sketch.size = this.width;
+				this.sketch.pixelSize = this.sketch.size/this.sketch.res;
+		    	this.sketch.pg = this.sketch.createGraphics(this.sketch.size, this.sketch.size);
+			},
+
 		    setup(sketch) {
 
 		    this.sketch = sketch;
 
-		    sketch.background('white');
-		    sketch.resizeCanvas(this.parentWidth, this.parentHeight);
+		    sketch.background('rgba(255,255,255, 0.1)');
+		    sketch.resizeCanvas(this.width, this.height);
 
 		    //l'animtion du pixel suivant
 		    sketch.s=20;
 		    sketch.timer = 0;
 		    sketch.isFlashing = true;
 
-		    sketch.size = 740;	//taille de l'image
+		    sketch.size = this.width;	//taille de l'image
 		    sketch.border = 2;	//epaisseur du cadre pour l'affichage
 		    sketch.res = 16;
 		    sketch.pixelSize = sketch.size/sketch.res;
@@ -29,12 +36,15 @@
 
 		    //tous les pixels de l'image
 		    sketch.pixels = [];
+
+		    window.addEventListener('resize', this.handleResize);
 	    },
 
 
 	    	draw(sketch) {
 
-				sketch.background('white');
+	    		sketch.clear();
+				sketch.background('rgba(255,255,255, 0.5)');
 
 				//la bordure
 				sketch.fill('black');
@@ -51,7 +61,7 @@
 
 				
 				//l'image
-				sketch.pg.background(sketch.color(200, 200, 200));
+				sketch.pg.clear();
 				sketch.pg.noStroke();
 				sketch.pg.fill('black');
 
@@ -113,9 +123,6 @@
 				//affichage de l'image
 				sketch.rectMode(sketch.CENTER);
 				sketch.image(sketch.pg, (sketch.width-sketch.pg.width)/2, (sketch.height-sketch.pg.height)/2);
-
-
-				
 	    	},
 
 	    	nextY(sketch, y, dir) {
@@ -155,6 +162,7 @@
 				}
 	    	},
 
+
 	    	/*
 	    	exportBitmap(){
 	    		console.log("saving img");
@@ -173,8 +181,8 @@
 	  		text: String,
 	  		rules: Array,
 	  		nb: Number,
-	  		parentWidth: Number,
-	  		parentHeight: Number,
+	  		width: Number,
+	  		height: Number,
 	  	},
 
 	  	computed: {
@@ -214,6 +222,3 @@
 	
 </script>
 
-<style scoped>
-
-</style>

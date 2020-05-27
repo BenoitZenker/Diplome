@@ -2,7 +2,21 @@ body {
   font-family: "Courier New", Courier, monospace, sans-serif;
   margin:0;
   padding: 0;
+  background-color: rgba(100, 100, 100, 1);
+  overflow: hidden;
 }
+
+.box {
+    background-color: rgba(200, 200, 255, 0.5);
+    font-family: "Courier New", Courier, monospace, sans-serif;
+    font-size:12px;
+}
+
+
+
+
+
+
 
 button, input {
 	font-family: "Courier New", Courier, monospace, sans-serif;
@@ -24,13 +38,7 @@ textarea{
     list-style-type: none;
 }
 
-.box {
-    background-color: white;
-    /*opacity:0.8;*/
-    /*border:solid;*/
-    font-family: "Courier New", Courier, monospace, sans-serif;
-    font-size:14px;
-}
+
 
 .navLeft {
 position:absolute;
