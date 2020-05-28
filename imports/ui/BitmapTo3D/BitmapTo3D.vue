@@ -1,8 +1,14 @@
 <template>
   <div id="BitmapTo3D" ref="BitmapTo3D">
  
-    <P5Sketch id ="sketch" ref ="p5" :pixelsOG="pixels" :imgDim="imgDim" v-on:update-p5-image="updateP5Image"></P5Sketch>
-     <div :style="threeStyle" ref="three" id="three"></div>
+ 
+    <P5Sketch id ="sketch" ref ="p5" :imgDim="imgDim" :width="imageDimensions" :height="imageDimensions" v-on:update-p5-image="updateP5Image" :style="imageStyle"></P5Sketch>
+  
+  
+    <P5SketchOG id ="sketchOG" ref ="sketchOG" :pixelsOG="pixels" :imgDim="imgDim" :width="imageDimensions" :height="imageDimensions" :style="imageStyle"></P5SketchOG>
+
+
+    <div :style="threeStyle" ref="three" id="three"></div>
     <button type ="button" ref="clear" @click="clearAllPixels">effacer</button>
 
     <button class="navRight" type="button" @click="toBitmap" >3D vers Bitmap</button>
@@ -13,11 +19,13 @@
 
 <script>
 
+  import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
   import OrbitControls from 'orbit-controls-es6';
   import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
   import P5Sketch from '/imports/ui/BitmapTo3D/BitmapTo3DSketch.vue'
+  import P5SketchOG from '/imports/ui/BitmapTo3D/BitmapTo3DP5SketchOG.vue'
 
   import '/imports/api/JSON/JSON.js';
 
@@ -58,6 +66,7 @@ export default {
   // Vue Methods
   methods: {  
 
+
     toBitmap:function(){
       this.$emit('toBitmap', this.cubesArray);
     },
@@ -84,7 +93,6 @@ export default {
       if (this.geometry)
         this.geometry.dispose();
       this.renderer.renderLists.dispose();
-      console.log("dispose")
 
       //on merge les géométries
       this.geometry = BufferGeometryUtils.mergeBufferGeometries( this.cubesArray, true );
@@ -96,11 +104,7 @@ export default {
 
 
     handleResize:function(){
-
-      console.log("resize, ", this.baseDimension);
-      this.renderer.setSize(this.baseDimension*2, this.baseDimension*2);
-
-
+      this.renderer.setSize(this.threeDimensions, this.threeDimensions);
     },
 
     //TODO: NÉCESSAIRE?
@@ -140,7 +144,7 @@ export default {
     this.$refs.three.appendChild( this.renderer.domElement );
 
     //les dimensions sont bonnes car ce code est appelé après avoir chargé le fichier, il y a donc un délai qui assure que le css a été chargé. par contre c'est pas clair le setsize, à revoir
-    this.renderer.setSize(this.baseDimension*2, this.baseDimension*2);
+    this.renderer.setSize(this.threeDimensions, this.threeDimensions);
     window.addEventListener('resize', this.handleResize);
     //this.handleResize();
 
@@ -170,6 +174,10 @@ export default {
 
   },
 
+  destroyed: function() {
+    console.log("BitmapTo3D destroyed");
+    window.removeEventListener('resize', this.handleResize);
+  },
 
   mounted:function() {
 
@@ -185,8 +193,6 @@ export default {
           if (req.readyState == XMLHttpRequest.DONE) {
               //alert(req.responseText);
               let data = JSON.parse(req.responseText);
-              console.log(data);
-
 
               //création de l'image
               for (let y=0; y<data.height; y++) {
@@ -224,13 +230,28 @@ export default {
   computed:{
     threeStyle:function(){
       return{
-        'margin-left': this.baseDimension+'px',
+        'left': this.baseDimension +GLOBAL.MARGIN +'px',
+        'top': GLOBAL.MARGIN + 'px',
       }
+    },
+    imageStyle:function(){
+      return{
+        'margin':GLOBAL.MARGIN + 'px',
+      }
+    },
+
+    threeDimensions:function(){
+      return this.baseDimension*2 - GLOBAL.MARGIN*2;
+    },
+
+    imageDimensions:function(){
+      return this.baseDimension - GLOBAL.MARGIN*2;
     },
   },
 
   components: {
     P5Sketch: P5Sketch,
+    P5SketchOG: P5SketchOG,
   },
 
 }
@@ -244,15 +265,23 @@ export default {
   #BitmapTo3D {
   }
 
+  #sketchOG {
+    position: absolute;
+    left:0;
+    top:0;
+  }
+
+
   #sketch {
-    position:fixed;
-    top:20px;
-    width:100%;
+    position:absolute;
+    top:0;
+    right:0;
+  }
+
+  #three {
+    position: absolute;
   }
 
 
-  #canvas {
-    background-color: grey;
-  }
 
 </style>

@@ -20,19 +20,19 @@
 
 
   <div v-else-if="globalState == 'lSystemToBitmap'">
-    <LSystemToBitmap :baseDimension="baseDimension" @toStart="toStart" @toBitmapTo3D="toBitmapTo3D"></LSystemToBitmap>
+    <LSystemToBitmap :baseDimension="baseDimension" @toStart="toStart" @toBitmapTo3D="toBitmapTo3D" ref="lSystemToBitmap"></LSystemToBitmap>
   </div>
 
 
   <div v-else-if="globalState == 'BitmapTo3D'">
     <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <BitmapTo3D :baseDimension="baseDimension" :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
+    <BitmapTo3D ref="bitmapTo3D" :baseDimension="baseDimension" :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
 
   </div>
 
   <div v-else-if="globalState == 'toBitmap'">
     <button class="navLeft" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
-    <toBitmap v-bind:cubes="this.cubes"></toBitmap> 
+    <toBitmap ref="toBitmap" :cubes="this.cubes" :baseDimension="baseDimension"></toBitmap> 
     <button class="navRIght" type="button"  @click="toStart" >Menu</button>
   </div>
 
@@ -118,25 +118,40 @@ export default {
       return !!this.currentUser
     },
 
+    //destruction des composants
+    destroyAllChildren(){
+      console.log("App destroying all children");
+
+      for (key in this.$refs) 
+        if (key !== "App")
+          if (this.$refs[key] !== undefined) {
+            console.log("destroying", key, this.$refs[key]);
+            this.$refs[key].$destroy();
+          }
+    },
+
     //gestion des changements d'états
     toBitmapTo3D(id){
       if (id)
         this.bitmapID = id;
-      console.log("in menu", this.bitmapID);
+
+      this.destroyAllChildren();
       this.globalState = "BitmapTo3D"
     },
 
     toLSystemToBitmap(){
+      this.destroyAllChildren();
       this.globalState = "lSystemToBitmap"
     },
 
     toBitmap(cubes){
-      console.log("in menu, ", cubes);
+      this.destroyAllChildren();
       this.globalState = "toBitmap";
       this.cubes = cubes;
     },
 
     toStart(){
+      this.destroyAllChildren();
       this.globalState = "start"
     }
 

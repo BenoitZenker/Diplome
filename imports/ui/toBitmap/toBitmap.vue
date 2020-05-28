@@ -1,8 +1,8 @@
 <template>
   <div id="toBitmap" ref="toBitmap">
 
-     <div ref="three" id="three"></div>
-     <canvas id="image" ref="image" width="150" height="150"></canvas>
+     <div ref="three" id="three" :style="threeStyle"></div>
+     <canvas id="image" ref="image" width="canvasDimensions" height="canvasDimensions" :style="canvasStyle"></canvas>
     <button class="navRight" type="button" @click="toBitmap" >3D vers Bitmap</button>
 
   </div>
@@ -11,6 +11,7 @@
 
 <script>
 
+  import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
   import OrbitControls from 'orbit-controls-es6';
   import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -43,6 +44,7 @@ export default {
 
   props: {
     cubes:Array,
+    baseDimension:Number,
   },
 
 
@@ -56,12 +58,12 @@ export default {
 
     handleResize:function(){
       console.log("resize from toBitmap")
-      this.height = window.innerHeight;
-      this.width = window.innerWidth;
+      this.renderer.setSize(this.threeDimensions, this.threeDimensions);
 
-      this.renderer.setSize(this.width/2, this.height);
-      this.camera.aspect = (this.width/2)/this.height;
-      this.camera.updateProjectionMatrix();
+      let canvasImage = this.$refs.image;
+      canvasImage.width = this.canvasDimensions;
+      canvasImage.height = this.canvasDimensions;
+
     },
 
 
@@ -70,15 +72,22 @@ export default {
       this.renderer.render( this.scene, this.camera );
 
 
+
       //update image
 
        //le canvas de l'image
       let canvasImage = this.$refs.image;
       var ctxImage = canvasImage.getContext('2d');
       let pxDim = canvasImage.width/this.imgDim;
+      
       //le canvas de three
       let threeCanvas = this.$refs.three.firstChild;
       let ctxThree = threeCanvas.getContext("webgl", {preserveDrawingBuffer: true});
+
+      //clear canvas
+      ctxImage.clearRect(0, 0, canvasImage.width, canvasImage.height);
+      ctxImage. fillStyle = '#ffffff7f';
+      ctxImage.fillRect(0, 0, canvasImage.width, canvasImage.height);
 
       //parcours des pixels du canvas three
       var pixels = new Uint8Array(4);
@@ -86,9 +95,11 @@ export default {
       for (let y=0; y<this.imgDim; y++)
         for(let x=0; x<this.imgDim; x++ ) {
           ctxThree.readPixels(x*threeCanvas.width/this.imgDim, y*threeCanvas.height/this.imgDim, 1, 1, ctxThree.RGBA, ctxThree.UNSIGNED_BYTE, pixels)
-          
-          ctxImage.fillStyle = 'rgb('+pixels[0]+', '+pixels[1]+', '+pixels[2]+')';
-          ctxImage.fillRect(x*pxDim, canvasImage.height-y*pxDim, pxDim, pxDim);
+          if (pixels[3] == 255) {
+            //console.log(pixels[3]);
+            ctxImage.fillStyle = 'rgb('+pixels[0]+', '+pixels[1]+', '+pixels[2]+')';
+            ctxImage.fillRect(x*pxDim, (canvasImage.height -pxDim)-y*pxDim, pxDim, pxDim);
+          }
         }
 
       
@@ -103,32 +114,36 @@ export default {
   mounted:function() {
 
     console.log("mounting toBitmap")
-    //les dimensions de la fenêtre
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+    console.log(GLOBAL.MARGIN);
+    let canvasImage = this.$refs.image;
+    canvasImage.width = this.canvasDimensions;
+    canvasImage.height = this.canvasDimensions;
 
 
-
-    //création de la scène
     this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setClearColor( 0xc8c8c8);
 
-    this.$refs.three.appendChild( this.renderer.domElement );
-    this.renderer.domElement.id ="threeCanvas";
-
-    this.renderer.setSize(this.width/2, this.height);
-
-    //camera
     this.camera =  new THREE.PerspectiveCamera( 80, 1, 1, 1000 );
     this.controls = new OrbitControls(this.camera,this.$refs.three);
-    this.controls.enableZoom = false; //empêche le scroll
-    this.camera.position.z = this.imgDim*1.2;
-    this.camera.aspect = (this.width/2)/this.height;
-    this.camera.updateProjectionMatrix();
+    //empêche le scroll
+    //this.controls.enableZoom = false;
 
-    
+    this.renderer = new THREE.WebGLRenderer({ alpha: true });
+    //this.renderer.setSize( this.$el.clientWidth, this.$el.clientHeight );
+    this.renderer.setClearColor( 0xffffff, 0.5 ); 
+    this.$refs.three.appendChild( this.renderer.domElement );
+
+    //les dimensions sont bonnes car ce code est appelé après avoir chargé le fichier, il y a donc un délai qui assure que le css a été chargé. par contre c'est pas clair le setsize, à revoir
+    this.renderer.setSize(this.threeDimensions, this.threeDimensions);
+
+
+    window.addEventListener('resize', this.handleResize);
+
+
+
+    //*******************************************************************
     //creation des géométries
+    //*******************************************************************
+
     this.cubeGeometry = new THREE.BoxBufferGeometry();
     this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff } );
     this.geometry = null;
@@ -138,31 +153,52 @@ export default {
     this.geometry.translate(-this.imgDim/2,-this.imgDim/2,-this.imgDim/2);
     this.mesh = new THREE.Mesh( this.geometry, this.cubeMaterial );
     this.scene.add(this.mesh);
-    
 
     //lumières
     var spotLight = new THREE.SpotLight( 0xffffff );
     spotLight.position.set( -10, 3, 30, 100 );
     this.scene.add(spotLight);
    
-    
-    //lance l'animation
-    this.id = window.requestAnimationFrame( this.animate);
+    this.camera.position.z = this.imgDim*1.2;
+    //this.camera.position.y = this.imgDim*0.6;
+   
 
-    window.addEventListener('resize', this.handleResize);
+    //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
+    this.id = window.requestAnimationFrame( this.animate);
   },
 
 
+
+
   destroyed() {
+    console.log("toBitmap destroyed");
+    window.removeEventListener('resize', this.handleResize);
     window.cancelAnimationFrame(this.id);
     this.id = undefined;
   },
 
   computed:{
+    threeStyle:function(){
+      return{
+        margin:GLOBAL.MARGIN+'px',
+      }
+    },
+
+    canvasStyle:function(){
+      return{
+        margin:GLOBAL.MARGIN+'px',
+      }
+    },
+
+    canvasDimensions:function(){
+      return this.baseDimension*2 - GLOBAL.MARGIN*2;
+    },
+
+    threeDimensions:function(){
+      return this.baseDimension*1.5 - GLOBAL.MARGIN*2;
+    },
   },
 
-  components: {
-  },
 
 }
 </script>
@@ -172,25 +208,15 @@ export default {
 
 <style scoped>
 
-  #BitmapTo3D {
-    width: 100vw;
-  }
-
-  #sketch {
-    position:fixed;
-    top:20px;
-    width:100%;
-  }
-
   #three {
-    margin-left:auto;
-    margin-right: auto;
-    width:50%;
-
-    
+    position: absolute;
+    top:0;
   }
-  #canvas {
-    background-color: grey;
+
+  #image {
+    position:absolute;
+    top:0;
+    right:0;
   }
 
 </style>

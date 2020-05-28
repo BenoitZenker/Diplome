@@ -75,7 +75,10 @@ export default {
     baseDimension:Number,
   },
 
-
+  destroyed: function() {
+    console.log("LSYSTEM destroyed");
+    window.removeEventListener('resize', this.handleResize);
+  },
 
   // Vue Methods
   methods: {  

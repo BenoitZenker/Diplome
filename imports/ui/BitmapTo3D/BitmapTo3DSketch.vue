@@ -15,35 +15,34 @@
 		},
 
 		methods: {
+
+			handleResize() {
+	    		this.sketch.resizeCanvas(this.width, this.height);
+	    		this.pixSize = this.width/this.imgDim;
+	    	},
+
 		    setup(sketch) {
-		      sketch.background('white');
-		      sketch.resizeCanvas(this.$el.clientWidth,200);
+		    	this.sketch = sketch;
 
-		      this.pixels = [];
-		      for (let i =0; i< this.imgDim; i++){
-		      	this.pixels[i] = []
-		      	for (let j=0; j<this.imgDim; j++)
-		      		this.pixels[i][j] = false;
-		      }
+		      	sketch.resizeCanvas(this.width, this.height);
+		      	window.addEventListener('resize', this.handleResize);
 
-		      this.pixSize = sketch.height/this.imgDim;
+		      	this.pixSize = this.width/this.imgDim;
 
+			    this.pixels = [];
+			    for (let i =0; i< this.imgDim; i++){
+			    	this.pixels[i] = []
+			      	for (let j=0; j<this.imgDim; j++)
+			      		this.pixels[i][j] = false;
+			    }
 	    	},
 
 
 	    	draw(sketch) {
-
-	    		let marginA = 10;
-	    		let marginB = sketch.width-210;
-	    		let marginY = 0;
 	    		
 
-
-				sketch.fill('white');
-				sketch.strokeWeight(2);
-				sketch.stroke('black');
-				sketch.rect(marginA,-marginY, 200, 200);
-				sketch.rect(marginB,-marginY, 200, 200);
+				this.sketch.clear();
+		      	this.sketch.background('rgba(255,255,255, 0.5)');
 
 
 				sketch.noStroke();
@@ -52,23 +51,15 @@
 				for (let y =0; y< this.imgDim; y++){
 		      		for (let x=0; x<this.imgDim; x++)
 		      			if (this.pixels[y][x])
-		      				sketch.rect(marginA + x*this.pixSize, y*this.pixSize, this.pixSize, this.pixSize);
+		      				sketch.rect(x*this.pixSize, y*this.pixSize, this.pixSize, this.pixSize);
 		     	}
-
-
-		     	//affichage pixels de base
-		     	if (this.pixelsOG.length > 0) {
-		    		for (let y=0; y<this.imgDim; y++){
-			      		for (let x=0; x<this.imgDim; x++)
-			      			if (this.pixelsOG[y][x])
-			      				//on inverse le y à nouveau
-			      				sketch.rect(marginB + x*this.pixSize,(this.imgDim-(y+1))*this.pixSize, this.pixSize, this.pixSize);
-			     	}
-		     	}
-			
+		     	
 	    	},
 
+
 	    	mouseclicked(sketch) {
+
+
 
 	    		let x= Math.floor(sketch.mouseX/this.pixSize);
 	    		let y= Math.floor(sketch.mouseY/this.pixSize);
@@ -83,25 +74,20 @@
 	    		}
 	    	},
 
+
 	    	clearAllPixels(){
 	    		for (let y =0; y< this.imgDim; y++){
 		      		for (let x=0; x<this.imgDim; x++)
 		      			this.pixels[y][x] = false;
 		     	}
 	    	}
-
-	 
 	  	},
 
 
 	  	props: {
 	  		imgDim:Number,
-	  		pixelsOG:Array,
-	  	},
-
-
-
-	  	computed: {
+	  		width:Number,
+	  		height:Number,
 	  	},
 
 	  	components: {
@@ -114,6 +100,3 @@
 	
 </script>
 
-<style scoped>
-
-</style>
