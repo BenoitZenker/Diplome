@@ -3,8 +3,7 @@
 
     <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
 
-
-    <sketch  id="sketch" v-if="docReady" ref="sketch" :text="text" :rules="rules" :nb="parseInt(nb)" :width="baseDimension*2" :height="baseDimension*2" :style="sketchStyle"></sketch>
+  <LSCanvas  id="LSCanvas" v-if="docReady" ref="LSCanvas" :text="text" :rules="rules" :nb="parseInt(nb)" :baseDimension="baseDimension*2" :style="canvasStyle" :res="16"></LSCanvas>
 
 
     <div id="interface" class="box" :style="interfaceStyle">
@@ -38,7 +37,10 @@
     </div>
 
 
+    <!--
     <button class="navRight" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
+  -->
+    <button class="navRight" type="button"  @click="saveToBitmap" >save bitmap</button>
 
       
   </div>
@@ -48,7 +50,7 @@
 
 
 <script>
-import Sketch from '/imports/ui/LSystemToBitmap/LSystemToBitmapSketch.vue'
+import LSCanvas from '/imports/ui/LSystemToBitmap/LSystemToBitmapCanvas.vue'
 import DB from '/imports/ui/LSystemToBitmap/LSystemToBitmapDB.vue'
 import Saving from '/imports/ui/LSystemToBitmap/LSystemToBitmapSaving.vue'
 
@@ -191,6 +193,10 @@ export default {
       });
     },
 
+    saveToBitmap(){
+      console.Log("save")
+    },
+
     setLSystem(elem){
       this.text = elem.expr;
       this.nb = elem.nb;
@@ -209,11 +215,13 @@ export default {
       }
     },
 
-    sketchStyle(){
+    canvasStyle(){
       return{
         'margin-left': this.baseDimension+'px',
         'width': this.baseDimension*2+'px',
         'height': this.baseDimension*2+'px',
+        'top':'0px',
+        'position':'absolute',
       }
     },
 
@@ -231,9 +239,9 @@ export default {
   },
 
   components: {
-    Sketch : Sketch,
     DB : DB,
     Saving : Saving,
+    LSCanvas : LSCanvas,
   },
 
 }
