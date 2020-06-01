@@ -14,15 +14,3 @@ JSONCollection = new FilesCollection({
 });
 
 
-
-if (Meteor.isClient) {
-  Meteor.subscribe('files.JSONCollection.all');	//le nom n'a pas d'importance il faut juset que ce soit le même dans publish et subscribe
-}
-
-if (Meteor.isServer) {
-  Meteor.publish('files.JSONCollection.all', function () {
-    return JSONCollection.find().cursor;
-  });
-
-}
-

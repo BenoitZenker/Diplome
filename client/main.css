@@ -7,9 +7,16 @@ body {
 }
 
 .box {
+    height:100%;
+    width:100%;
+    box-sizing: border-box;
+    padding: 5px;
+
     background-color: rgba(200, 200, 255, 0.5);
+
     font-family: "Courier New", Courier, monospace, sans-serif;
     font-size:12px;
+
 }
 
 
@@ -21,16 +28,21 @@ body {
 button, input {
 	font-family: "Courier New", Courier, monospace, sans-serif;
 	font-size:14px;
-    height:32px;
-    border-radius:0;
-    color:black;
-    border: none;
-    
-    margin-bottom:8px;
+  height:32px;
+  border-radius:0;
+  color:black;
+  border: none;
+}
+
+.buttonFaint {
+  color:grey;
 }
 
 textarea{
 	resize:none;
+  border:none;
+  margin:0;
+  padding: 0;
 }
 
  ul {

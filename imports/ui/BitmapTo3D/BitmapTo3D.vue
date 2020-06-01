@@ -62,6 +62,12 @@ export default {
     baseDimension:Number,
   },
 
+  meteor:{
+    $subscribe: {
+      'JSONCollection': []
+    },
+  },
+
 
   // Vue Methods
   methods: {  
@@ -184,10 +190,11 @@ export default {
     console.log("mounting bitmapTo3D");
 
     //wait for db to be loaded
-    Meteor.subscribe("files.JSONCollection.all", ()=>{
+    Meteor.subscribe("JSONCollection", ()=>{
 
       //création de l'image à partir de l'id du json fournie
       let myJSON = JSONCollection.findOne({_id:this.bitmapID});
+      console.log("file found: ", myJSON)
       var req = new XMLHttpRequest();
       req.onreadystatechange = ()=> { //calllback, une fois que le fichier est chargé
           if (req.readyState == XMLHttpRequest.DONE) {

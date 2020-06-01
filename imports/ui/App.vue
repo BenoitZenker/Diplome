@@ -1,15 +1,17 @@
 <template>
   <div id="App" ref="App" :style="AppStyle">
 
-    
+  <div v-if="isAdmin()">
+    <button class="adminButton" type="button"  @click="toAdmin" >admin</button>
+  </div>
 
   <div v-if="!isLogged()">
-    <Login></Login>
+    <Login :baseDimension="baseDimension" >Login</Login>
   </div>
 
 
   <div v-else-if="globalState == 'start'">
-    <Login></Login>
+    <Login :baseDimension="baseDimension">Login</Login>
 
     <button class="menuButton" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
     <!--
@@ -36,6 +38,12 @@
     <button class="navRIght" type="button"  @click="toStart" >Menu</button>
   </div>
 
+  <div v-else-if="globalState == 'admin'">
+     <Admin></Admin>
+    <button class="navRIght" type="button"  @click="toStart" >Menu</button>
+  </div>  
+
+
     
     
   
@@ -54,9 +62,9 @@ import NavRight from '/imports/ui/NavRight.vue'
 import TraductionMap from '/imports/ui/TraductionMap.vue'
 import LSystemToBitmap from '/imports/ui/LSystemToBitmap/LSystemToBitmap.vue'
 import BitmapTo3D from '/imports/ui/BitmapTo3D/BitmapTo3D.vue'
-import Login from '/imports/ui/Login.vue'
+import Login from '/imports/ui/Users/Login.vue'
 import toBitmap from '/imports/ui/toBitmap/toBitmap.vue'
-
+import Admin from '/imports/ui/Admin/Admin.vue'
 
 
 
@@ -108,14 +116,15 @@ export default {
 
       this.appWidth = this.baseDimension*4;
       this.appHeight = this.baseDimension*2;
-
- 
-
     },
 
 
     isLogged(){
       return !!this.currentUser
+    },
+
+    isAdmin(){
+      return this.currentUser && this.currentUser.profile && this.currentUser.profile.role === "admin"
     },
 
     //destruction des composants
@@ -131,6 +140,11 @@ export default {
     },
 
     //gestion des changements d'états
+
+    toAdmin(){
+      this.globalState = "admin"
+    },
+
     toBitmapTo3D(id){
       if (id)
         this.bitmapID = id;
@@ -178,6 +192,7 @@ export default {
     BitmapTo3D : BitmapTo3D,
     Login : Login,
     toBitmap : toBitmap,
+    Admin : Admin,
   },
 }
 
@@ -204,7 +219,7 @@ export default {
 
 .menuButton {
 
-  margin-top: 40px;
+  margin-top: 200px;
 
   text-align: center;
   position: absolute;

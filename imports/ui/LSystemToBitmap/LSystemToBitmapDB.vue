@@ -9,7 +9,7 @@
       <ul>
         <li v-for="elem in DBCursor" :key="elem._id" >
           <p @click="$emit('set-lsystem', elem)">{{elem.name}} par {{elem.author}} </p>
-          <button v-if="elem.authorID == this.Meteor.userId()" type="button" class="deleteButton" @click="deleteSave(elem)" >x</button>
+          <button v-if="elem.authorID == this.Meteor.userId() || this.Meteor.user().profile.role==='admin'" type="button" class="deleteButton" @click="deleteSave(elem)" >x</button>
 
         </li>
       </ul>

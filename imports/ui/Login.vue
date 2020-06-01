@@ -1,6 +1,6 @@
 <template>
   <div id="Login">
-    <blaze-template template="loginButtons" tag="span"></blaze-template>
+    {{buttonText}}
   </div>
 </template>
 
