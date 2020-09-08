@@ -1,33 +1,45 @@
+@font-face {
+  font-family: "InputBold";
+  src: url("/fonts/Input-Bold_(InputSans-Bold).ttf") format("truetype");
+  font-weight: bold;
+}
+@font-face {
+  font-family: "InputBoldItalic";
+  src: url("/fonts/Input-BoldItalic_(InputSans-BoldItalic).ttf") format("truetype");
+  font-weight: bold;
+
+}
+@font-face {
+  font-family: "InputItalic";
+  src: url("/fonts/Input-Italic_(InputSans-Italic).ttf") format("truetype");
+  font-weight: normal;
+}
+@font-face {
+  font-family: "InputRegular";
+  src: url("/fonts/Input-Regular_(InputSans-Regular).ttf") format("truetype");
+  font-weight: normal;
+}
+
 body {
-  font-family: "Courier New", Courier, monospace, sans-serif;
+  font-family: InputRegular, "Courier New", Courier, monospace, sans-serif;
   margin:0;
   padding: 0;
   background-color: rgba(100, 100, 100, 1);
   overflow: hidden;
 }
 
-.box {
-    height:100%;
-    width:100%;
-    box-sizing: border-box;
-    padding: 5px;
 
-    background-color: rgba(200, 200, 255, 0.5);
-
-    font-family: "Courier New", Courier, monospace, sans-serif;
-    font-size:12px;
-
+.hidden {
+  display:none;
 }
 
 
 
 
-
-
-
 button, input {
-	font-family: "Courier New", Courier, monospace, sans-serif;
-	font-size:14px;
+	font-family: InputRegular, "Courier New", Courier, monospace, sans-serif;
+  font-weight: thin;
+	font-size:20px;
   height:32px;
   border-radius:0;
   color:black;
@@ -38,45 +50,69 @@ button, input {
   color:grey;
 }
 
-textarea{
+textarea {
 	resize:none;
   border:none;
   margin:0;
   padding: 0;
 }
 
- ul {
-    padding: 0;
-    list-style-type: none;
+ul {
+  padding: 0;
+  list-style-type: none;
+  margin:0;
 }
 
+
+
+.navLeftContainer {
+  width:50%;
+  float:left;
+  margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
+  transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */
+}
+.navRightContainer{
+  width:50%;
+  float:right;
+  margin-top: 50vh; /* poussé de la moitié de hauteur de viewport */
+  transform: translateY(-50%); /* tiré de la moitié de sa propre hauteur */
+}
 
 
 .navLeft {
-position:absolute;
-top:90%;
--ms-transform: translate(0, -50%);
-transform: translate(0, -50%);
-left:10px;
-background-color: #c5e6f0;
+  font-family: InputBoldItalic, "Courier New", Courier, monospace, sans-serif;
+
+  display:block;
+  margin-left:10%;
+  margin-right:auto;
+
+  margin-top:10px;
+
+  background-color: black;
+  color:white;
+  
 }
 
 .navRight{
-position:absolute;
-top:90%;
-right:10px;
--ms-transform: translate(0, -50%);
-transform: translate(0, -50%);
-background-color: #c5e6f0;
+  margin-left:auto;
+  margin-right:10%;
+  display:block;
+
+  font-family: InputBoldItalic, "Courier New", Courier, monospace, sans-serif;
+
+  margin-top:10px;
+
+  background-color: black;
+  color:white;
 }
 
 .navRight:hover, .navLeft:hover {
-  background-color: white;
+  background-color: grey;
 }
 
-.closeButton {
-    background-color: black;
-    color:white;
-    font-weight: bold;
-    font-size:18px;
-  }
+#menu {
+  z-index: 1000;
+  position:fixed;
+  background-color:  rgba(255, 255, 255, 0.9);
+}
+

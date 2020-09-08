@@ -10,6 +10,8 @@ import '/imports/api/LSystems/methods.js';
 import '/imports/api/JSON/JSON.js';
 import '/imports/api/JSON/methods.js';
 
+import '/imports/api/BitmapCollection.js';
+
 
 
 Meteor.startup(() => {

@@ -14,7 +14,6 @@
     ...
 
     <h1>JSON</h1>
-
     <ul>
       <li v-for="elem in JSONCursor" :key="elem._id" >
           {{ getJSONLink(elem._id)}}
@@ -22,6 +21,13 @@
       </li>
     </ul>
 
+    <h1>BITMAP</h1>
+    <ul>
+      <li v-for="elem in BitmapCursor" :key="elem._id" >
+          <img class="bitmap16px" :src="getBitmapLink(elem._id)" >
+          <button @click="removeBitmap(elem._id)">X</button>
+      </li>
+    </ul>
 
   </div>
 </template>
@@ -33,6 +39,7 @@
 
   import { Meteor } from 'meteor/meteor';
   import '/imports/api/JSON/JSON.js';
+  import '/imports/api/BitmapCollection.js'
 
 
   export default {
@@ -55,9 +62,18 @@
         Meteor.call('removeFile', id);
       },
 
+      removeBitmap(id){
+        console.log('remove bitmap'+id)
+        Meteor.call('removeBitmap', id);
+      },
+
       getJSONLink(id){
         return JSONCollection.findOne(id).link();
-      }
+      },
+
+      getBitmapLink(id){
+        return BitmapCollection.findOne(id).link();
+      },
     },
 
 
@@ -68,7 +84,8 @@
         $subscribe: {
           'LSystems': [],
           'Users': [],
-          'JSONCollection': []
+          'JSONCollection': [],
+          'BitmapCollection': [],
         },
 
         LSystemsCursor () {
@@ -89,6 +106,12 @@
             sort: {time: -1}
           })
         },
+
+        BitmapCursor () {
+          return BitmapCollection.find({}, {
+            sort: {time: -1}
+          })
+        },
         
 
       },
@@ -103,5 +126,11 @@
 
   #Admin {
     overflow-y: scroll;
+    height:100vh;
+  }
+
+  .bitmap16px {
+    width:100px;
+    height:100px;
   }
 </style>

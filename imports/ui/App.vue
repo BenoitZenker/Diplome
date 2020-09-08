@@ -10,46 +10,42 @@
   </div>
 
 
-  <div v-else-if="globalState == 'start'">
+
+  <div id="boutons" v-else-if="globalState == 'start'">
     <Login :baseDimension="baseDimension">Login</Login>
-
-    <button class="menuButton" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <!--
-    <button type="button"  @click="toBitmapTo3D('')" >BitmapTo3D</button>
-    -->
+    <button class="menuButton" type="button"  @click="startToModule1">Image -> 3D</button>
+    <button class="menuButton" type="button"  @click="startToModule3">Texte -> Image</button>
   </div>
 
 
-
-  <div v-else-if="globalState == 'lSystemToBitmap'">
-    <LSystemToBitmap :baseDimension="baseDimension" @toStart="toStart" @toBitmapTo3D="toBitmapTo3D" ref="lSystemToBitmap"></LSystemToBitmap>
+  <div v-else-if="globalState == 'module1'">
+    <Module1 :baseDimension="baseDimension" :pixels="pixels" @toModule2="toModule2" @toModule4="toModule4" @toStart="toStart"></Module1>
   </div>
 
 
-  <div v-else-if="globalState == 'BitmapTo3D'">
-    <button class="navLeft" type="button"  @click="toLSystemToBitmap" >LSystemToBitmap</button>
-    <BitmapTo3D ref="bitmapTo3D" :baseDimension="baseDimension" :bitmapID="bitmapID" @toBitmap="toBitmap" ></BitmapTo3D> 
-
+   <div v-else-if="globalState == 'module2'">
+    <Module2 :baseDimension="baseDimension" :scene="scene" @toStart="toStart" @toModule1="toModule1" @toModule5="toModule5"></Module2>
   </div>
 
-  <div v-else-if="globalState == 'toBitmap'">
-    <button class="navLeft" type="button"  @click="toBitmapTo3D" >BitmapTo3D</button>
-    <toBitmap ref="toBitmap" :cubes="this.cubes" :baseDimension="baseDimension"></toBitmap> 
-    <button class="navRIght" type="button"  @click="toStart" >Menu</button>
+  <div v-else-if="globalState == 'module3'">
+    <Module3 :baseDimension="baseDimension" @toStart="toStart" @toModule1="toModule1"  @toModule5="toModule5"></Module3>
   </div>
+
+  <div v-else-if="globalState == 'module4'">
+    <Module4 :baseDimension="baseDimension" :scene="scene" @toStart="toStart" @toModule1="toModule1" @toModule2="toModule2" @toModule5="toModule5"></Module4>
+  </div>
+
+  <div v-else-if="globalState == 'module5'">
+    <Module5 :baseDimension="baseDimension" :pixels="pixels" @toStart="toStart" @toModule1="toModule1" ></Module5>
+  </div>
+
 
   <div v-else-if="globalState == 'admin'">
      <Admin></Admin>
-    <button class="navRIght" type="button"  @click="toStart" >Menu</button>
+    <button class="navRight" type="button"  @click="toStart" >Menu</button>
   </div>  
 
 
-    
-    
-  
-
-      
-    
   </div>
 </template>
 
@@ -57,14 +53,18 @@
 
 
 <script>
-import NavLeft from '/imports/ui/NavLeft.vue'
-import NavRight from '/imports/ui/NavRight.vue'
-import TraductionMap from '/imports/ui/TraductionMap.vue'
-import LSystemToBitmap from '/imports/ui/LSystemToBitmap/LSystemToBitmap.vue'
-import BitmapTo3D from '/imports/ui/BitmapTo3D/BitmapTo3D.vue'
+
+import Module1 from '/imports/ui/Module1/Module1.vue'
+import Module2 from '/imports/ui/Module2/Module2.vue'
+import Module3 from '/imports/ui/Module3/Module3.vue'
+import Module4 from '/imports/ui/Module4/Module4.vue'
+import Module5 from '/imports/ui/Module5/Module5.vue'
+
+
 import Login from '/imports/ui/Users/Login.vue'
-import toBitmap from '/imports/ui/toBitmap/toBitmap.vue'
 import Admin from '/imports/ui/Admin/Admin.vue'
+
+import '/imports/ui/utils.js'
 
 
 
@@ -81,14 +81,13 @@ export default {
       appHeight:Number,
 
       globalState:"start",
-      //etats : start, lSystemToBitmap, BitmapTo3D
 
-      bitmapID:"jvE65ssMb67cnwyij",
 
-      cubes:[],
-
+      scene:Object,
+      pixels:Array,
     }
   },
+
   computed: {
     //le style css
     AppStyle:function() {
@@ -102,7 +101,6 @@ export default {
   methods: {
 
     handleResize(){
-      console.log("handleResize from App")
       this.width = window.innerWidth;
       this.height = window.innerHeight;
       
@@ -145,29 +143,47 @@ export default {
       this.globalState = "admin"
     },
 
-    toBitmapTo3D(id){
-      if (id)
-        this.bitmapID = id;
-
-      this.destroyAllChildren();
-      this.globalState = "BitmapTo3D"
-    },
-
-    toLSystemToBitmap(){
-      this.destroyAllChildren();
-      this.globalState = "lSystemToBitmap"
-    },
-
-    toBitmap(cubes){
-      this.destroyAllChildren();
-      this.globalState = "toBitmap";
-      this.cubes = cubes;
-    },
 
     toStart(){
       this.destroyAllChildren();
+      this.pixels =null;
+      this.scene = null;
       this.globalState = "start"
-    }
+    },
+
+    startToModule1(){
+      this.destroyAllChildren();
+      this.globalState = "module1";
+    },
+
+    startToModule3(){
+      this.destroyAllChildren();
+      this.globalState = "module3";
+    },
+
+    toModule1(pixels){
+      this.destroyAllChildren();
+      this.pixels = pixels;
+      this.globalState = "module1";
+    },
+
+    toModule2(scene){
+      this.destroyAllChildren();
+      this.scene = scene;
+      this.globalState = "module2";
+    },
+
+    toModule4(scene){
+      this.destroyAllChildren();
+      this.scene = scene;
+      this.globalState = "module4";
+    },
+
+    toModule5(pixels){
+      this.destroyAllChildren();
+      this.pixels = pixels;
+      this.globalState = "module5";
+    },
 
   },
 
@@ -180,19 +196,22 @@ export default {
 
   mounted:function(){
     this.handleResize();  //init les dimensions
+    this.pixels =null;
+    this.scene = null;
     window.addEventListener('resize', this.handleResize);
   },
 
 
   components: {
-    TraductionMap : TraductionMap,
-    NavLeft : NavLeft,
-    NavRight : NavRight,
-    LSystemToBitmap : LSystemToBitmap,
-    BitmapTo3D : BitmapTo3D,
+
     Login : Login,
-    toBitmap : toBitmap,
     Admin : Admin,
+
+    Module1:Module1,
+    Module2:Module2,
+    Module3:Module3,
+    Module4:Module4,
+    Module5:Module5,
   },
 }
 
@@ -204,7 +223,8 @@ export default {
 <style scoped>
 
 #App {
-  background-color: rgba(220, 220, 220, 1);
+  /*background-color: rgba(220, 220, 220, 1);*/
+  background-color:white;
   background-image: linear-gradient(rgba(0, 0, 0, .1) 2px, transparent 2px), linear-gradient(90deg,rgba(0, 0, 0, .1) .2px, transparent 2px);
   background-size: 12.5% 25%;
 
@@ -216,21 +236,24 @@ export default {
 
 
 
+#boutons{
+  margin-top:200px;
+}
 
 .menuButton {
-
-  margin-top: 200px;
+  margin-top: 10px;
 
   text-align: center;
-  position: absolute;
-  left:50%;
-  -ms-transform: translate(-50%, 0);
-  transform: translate(-50%, 0);
+  display: block;
+  margin-left:auto;
+  margin-right:auto;
 
   background-color: #c5e6f0;
 }
+
 .menuButton:hover {
   background-color: white;
 }
+
 
 </style>

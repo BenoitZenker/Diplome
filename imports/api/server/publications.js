@@ -10,3 +10,7 @@ Meteor.publish('Users', function() {
 Meteor.publish('JSONCollection', function() {
 	return JSONCollection.find().cursor;
 });
+
+Meteor.publish('BitmapCollection', function() {
+	return BitmapCollection.find().cursor;
+});
