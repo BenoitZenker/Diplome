@@ -1,3 +1,10 @@
+Meteor.publish('Scenes', function() {
+	return Scenes.find().cursor;
+});
+
+
+
+//old
 Meteor.publish('LSystems', function () {
 	return LSystems.find({});
 });

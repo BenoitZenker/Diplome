@@ -27,10 +27,12 @@
 
   import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
+  import Exporter from 'three/examples/jsm/exporters/GLTFExporter.js'
   import OrbitControls from 'orbit-controls-es6';
-  import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
   import P5Sketch from '/imports/ui/Module1/P5Sketch.vue'
+
+  import Scene from '/imports/api/Scenes/Scenes.js'
 
 
 
@@ -71,15 +73,29 @@ export default {
     //Changement de composant
     //*******************************************************************
     toModule2:function(){
+      this.saveSceneToDB();
       this.$emit('toModule2', this.scene);
     },
 
     toModule4:function(){
+      this.saveSceneToDB();
       this.$emit('toModule4', this.scene);
     },
 
     toStart:function(){
       this.$emit('toStart')
+    },
+
+
+    //********************************************************************
+    //BDD
+    //********************************************************************
+    saveSceneToDB:function(){
+      console.log("insert scene in db from module 1")
+      var exporter =  new Exporter.GLTFExporter();
+      exporter.parse( this.scene, function ( gltf ) {
+        Meteor.call('insertScene', gltf);
+      });
     },
 
 
@@ -175,6 +191,17 @@ export default {
 
   mounted:function() {
     console.log("mounting module 1");
+
+    //subscribe
+    this.$subscribe('Scenes', []);
+
+     //observe changes
+    Scenes.find().observe({
+      added:(scene)=>{
+        console.log("scene added");
+      },
+    })
+
   
     this.cubes = new Map();
 

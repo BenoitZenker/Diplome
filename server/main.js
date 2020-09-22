@@ -1,5 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
+
+import '/imports/api/Scenes/Scenes.js';
+import '/imports/api/Scenes/methods.js';
+
+
+//old
 import '/imports/api/server/publications.js';
 
 import '/imports/api/Users/methods.js';
