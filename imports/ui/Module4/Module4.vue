@@ -2,19 +2,19 @@
   <div id="Module4" ref="Module4">
 
     <div v-if="isMenu" id="menu" :style="menuStyle">
+      <h1>3D 🡒 image (exploser)</h1>
       <div class="navLeftContainer">
         <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
       </div>
       <div class="navRightContainer">
-        <button class="navRight" type="button"  @click="toModule2" >3D -> Image</button>
-        <button class="navRight" type="button"  @click="toModule1" >Image -> 3D</button>
-        <button class="navRight" type="button"  @click="toModule5" >décaler l'image</button>
+        <button class="navRight" type="button"  @click="toModule1" >image 🡒 3D</button>
+        <button class="navRight" type="button"  @click="toModule5" >image 🡒 texte</button>
       </div>
     </div>
 
      <div ref="three" id="three" :style="threeStyle"></div>
 
-     <P5Sketch id ="sketch" ref ="sketch" :imgDim="imgDim" :width="sketchWidth" :height="sketchHeight" :pixels="pixels" :style="sketchStyle" v-on:remove-pixel="removePixel" v-on:change-pixel="changePixel"></P5Sketch>
+     <P5Sketch id ="sketch" ref ="sketch" :imgDim="imgDim" :width="sketchWidth" :height="sketchHeight" :pixels="pixels" :style="sketchStyle" v-on:remove-pixel="removePixel" v-on:change-pixel="changePixel" v-on:shuffle-pixels="cubesToPixels"></P5Sketch>
 
 
   </div>
@@ -22,6 +22,8 @@
 
 
 <script>
+
+  import '/imports/api/Scenes/Scenes.js'
 
   import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
@@ -74,6 +76,16 @@
     var result = [H, S, L];
     return result;
   }
+  function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+  }
 
 export default {
 
@@ -85,6 +97,7 @@ export default {
       camera: Object,
       renderer: Object,
       controls: Object,
+      scene: Object,
 
       id:undefined, //requestanimationframe
 
@@ -94,7 +107,6 @@ export default {
   },
 
   props: {
-    scene:Object,
     baseDimension:Number,
   },
 
@@ -108,13 +120,12 @@ export default {
     toStart:function(){
       this.$emit('toStart')
     },
-    toModule2:function(){
-      this.$emit('toModule2', this.scene)
-    },
     toModule1:function(){
+      this.saveImageToDB();
       this.$emit('toModule1', this.pixels)
     },
     toModule5:function(){
+      this.saveImageToDB();
       this.$emit('toModule5', this.pixels);
     },
 
@@ -161,6 +172,67 @@ export default {
       this.renderer.render( this.scene, this.camera );
       this.id = window.requestAnimationFrame(this.animate);
     },
+
+    loadScene:function(jsonData){
+      console.log("loading json", JSON.parse(jsonData));
+
+      //clear previous cubes
+      for (let i=0; i<this.previousCubes.length; i++) 
+        this.scene.remove(this.scene.getObjectByName(this.previousCubes[i].id));
+      
+
+
+      //add cubes to three
+      let cubes = JSON.parse(jsonData);
+      for (var i = 0; i< cubes.length; i++) {
+        let cube = this.cubeGeometry.clone();    
+        cube.translate(cubes[i].x, cubes[i].y, cubes[i].z);
+        let cubeMaterial = new THREE.MeshLambertMaterial( { color: new THREE.Color(cubes[i].color) } );
+        let mesh = new THREE.Mesh( cube, cubeMaterial );
+        mesh.name = cubes[i].id;
+        mesh.hslColors = cubes[i].hslColors;
+        this.scene.add(mesh);
+      }
+
+      //save new cubes
+      this.previousCubes = Array.from(cubes);
+
+      //add cubes to image
+      //remplissage en fonction des cubes
+      let x=0;
+      let y=0;
+      this.cubesToPixels();
+    },
+
+    cubesToPixels:function(){
+
+      //vide les pixels existants
+      this.pixels = new Array(this.imgDim);
+      for (let i = 0; i<this.imgDim;i++)
+        this.pixels[i] = new Array(this.imgDim);
+
+
+      //stack of coordinates
+      let stack = new Array();
+      for (let i = 0; i<this.imgDim;i++) {
+        for (let j = 0; j<this.imgDim;j++)
+          stack.push({x:i, y:j});
+      }
+
+      for (var i=0; i<this.previousCubes.length; i++){
+        let c = this.previousCubes[i];
+        let index = Math.floor(Math.random()*stack.length-1);
+        let crd = stack.splice(index,1)[0]
+        this.pixels[crd.x][crd.y] = new HSLColor(c.hslColors[0], c.hslColors[1], c.hslColors[2]);
+      }
+    },
+
+    saveImageToDB:function(){
+      Meteor.call('insertImage', {
+        pixels:this.pixels,
+        dim: this.imgDim,
+      });
+    }
   },
 
 
@@ -176,32 +248,16 @@ export default {
     });
 
 
-    //setup de l'image
-
     //le tableau de pixels
     this.pixels = new Array(this.imgDim);
     for (let i = 0; i<this.imgDim;i++)
       this.pixels[i] = new Array(this.imgDim);
 
-    //remplissage en fonction des cubes
-    let x=0;
-    let y=0;
-    this.scene.traverse( (node)=> {
-      if ( node instanceof THREE.Mesh ) {
-        this.pixels[y][x] = new HSLColor(node.hslColors[0], node.hslColors[1], node.hslColors[2]);
-        //pointeur vers le cube correspondant
-        this.pixels[y][x].cubeID = node.id;
-        x++;
-        if (x> this.imgDim) {
-          x=0;
-          y++;
-        }
-    }
-
-} );
-
-
+    
     //setup 3D three
+    this.previousCubes = new Array();
+    this.scene = new THREE.Scene();
+    this.cubeGeometry = new THREE.BoxBufferGeometry();
 
     this.camera =  new THREE.PerspectiveCamera( 80, 1, 1, 1000 );
     this.camera.position.z = this.imgDim*1.2;
@@ -213,10 +269,37 @@ export default {
 
     this.renderer.setSize(this.threeWidth, this.threeHeight);
 
+    //lumières
+    var spotLight = new THREE.SpotLight( 0xffffff );
+    spotLight.position.set( -10, 3, 30, 100 );
+    this.scene.add(spotLight);
+
+    var ambiantLight = new THREE.AmbientLight( 0x404040 );
+    this.scene.add(ambiantLight);
+     
     window.addEventListener('resize', this.handleResize);
 
     //lance l'animation 
     this.id = window.requestAnimationFrame( this.animate);
+
+
+
+    //souscription à la base de données des scenes
+    Meteor.subscribe('Scenes', Meteor.userId(), ()=>{
+      let scene = Scenes.findOne({}, {sort:{created_at:-1, limit:1}}).scene
+      if (scene)
+        this.loadScene(scene);
+    })
+
+    //callback quand la scène est updatée
+    var now = new Date();
+    Scenes.find({created_at : {$gt:now}}).observe({
+      added:(newScene)=>{
+        console.log("nouvelle scène dans la bdd", this.scene)
+        this.loadScene(newScene.scene);       
+      },
+    })
+
   },
 
 
@@ -262,7 +345,7 @@ export default {
     sketchStyle:function(){
       return{
         'position':'absolute',
-        'left':GLOBAL.MARGIN + 'px',
+        'right':GLOBAL.MARGIN + 'px',
         'top':GLOBAL.MARGIN + 'px',
         'width': this.sketchWidth +'px',
         'height': this.sketchHeight +'px',
@@ -284,7 +367,7 @@ export default {
   #three {
     position: absolute;
     top:0;
-    right:0;
+    left:0;
   }
 
 

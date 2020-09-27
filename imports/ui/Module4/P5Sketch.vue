@@ -63,7 +63,7 @@
 		      	this.sketch.background('rgba(255,255,255, 0.5)');
 
 		      	this.drawImage(sketch);
-		      	this.drawCursor(sketch);    	
+		      	//this.drawCursor(sketch);    	
 	    	},
 
 
@@ -98,8 +98,8 @@
 	    	},
 
 
+	    	/*
 	    	mouseclicked(sketch,e) {
-
 	    		//check si on a bien cliqué sur le canvas et pas sur une div au-dessus du canvas
 	    		if (e.target.className === 'p5Canvas') {
 
@@ -128,6 +128,16 @@
 		    					this.$emit('change-pixel',x ,y, new HSLColor(c.h, c.s, c.l));
 		    			}
 		    		}
+	    		}	
+	    	},
+	    	*/
+
+	    	mouseclicked(sketch,e) {
+
+	    		//check si on a bien cliqué sur le canvas et pas sur une div au-dessus du canvas
+	    		if (e.target.className === 'p5Canvas') {
+	    			this.$emit('shuffle-pixels');
+	    			console.log("emit shuffle")
 	    		}
 	    		
 	    	},
@@ -144,12 +154,6 @@
 	    		//on fait une copie
 	    		for (var i = 0; i < pixels.length; i++)
     				this.pixels[i] = pixels[i].slice();
-	    	},
-
-	    	saveToBitmap() {
-	    		let cv = this.$refs.cvSave;
-	    		let data = cv.toDataURL('image/bmp');
-	    		return data;
 	    	},
 	  	},
 

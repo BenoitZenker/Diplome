@@ -13,30 +13,32 @@
 
   <div id="boutons" v-else-if="globalState == 'start'">
     <Login :baseDimension="baseDimension">Login</Login>
-    <button class="menuButton" type="button"  @click="startToModule1">Image -> 3D</button>
-    <button class="menuButton" type="button"  @click="startToModule3">Texte -> Image</button>
+    <button class="menuButton" type="button"  @click="toModule1">image 🡒 3D</button>
+    <button class="menuButton" type="button"  @click="toModule2">3D 🡒 image (aplatir)</button>
+    <button class="menuButton" type="button"  @click="toModule3">texte 🡒 image</button>
+    <button class="menuButton" type="button"  @click="toModule4">3D 🡒 image (exploser)</button>
+    <button class="menuButton" type="button"  @click="toModule5">image 🡒 texte</button>
   </div>
 
 
-  <div v-else-if="globalState == 'module1'">
-    <Module1 :baseDimension="baseDimension" :pixels="pixels" @toModule2="toModule2" @toModule4="toModule4" @toStart="toStart"></Module1>
-  </div>
+    <div v-if="globalState == 'module1'">
+      <Module1 :baseDimension="baseDimension" @toStart="toStart" @toModule2="toModule2" @toModule4="toModule4"></Module1>
+    </div>
 
-
-   <div v-else-if="globalState == 'module2'">
-    <Module2 :baseDimension="baseDimension" :scene="scene" @toStart="toStart" @toModule1="toModule1" @toModule5="toModule5"></Module2>
-  </div>
+    <div v-else-if="globalState == 'module2'">
+      <Module2 :baseDimension="baseDimension" @toStart="toStart" @toModule1="toModule1" @toModule5="toModule5"></Module2>
+    </div>
 
   <div v-else-if="globalState == 'module3'">
     <Module3 :baseDimension="baseDimension" @toStart="toStart" @toModule1="toModule1"  @toModule5="toModule5"></Module3>
   </div>
 
   <div v-else-if="globalState == 'module4'">
-    <Module4 :baseDimension="baseDimension" :scene="scene" @toStart="toStart" @toModule1="toModule1" @toModule2="toModule2" @toModule5="toModule5"></Module4>
+    <Module4 :baseDimension="baseDimension" @toStart="toStart" @toModule1="toModule1" @toModule2="toModule2" @toModule5="toModule5"></Module4>
   </div>
 
   <div v-else-if="globalState == 'module5'">
-    <Module5 :baseDimension="baseDimension" :pixels="pixels" @toStart="toStart" @toModule1="toModule1" ></Module5>
+    <Module5 :baseDimension="baseDimension" @toStart="toStart" @toModule3="toModule3" ></Module5>
   </div>
 
 
@@ -64,10 +66,6 @@ import Module5 from '/imports/ui/Module5/Module5.vue'
 import Login from '/imports/ui/Users/Login.vue'
 import Admin from '/imports/ui/Admin/Admin.vue'
 
-import '/imports/ui/utils.js'
-
-
-
 
 export default {
 
@@ -82,9 +80,6 @@ export default {
 
       globalState:"start",
 
-
-      scene:Object,
-      pixels:Array,
     }
   },
 
@@ -151,37 +146,28 @@ export default {
       this.globalState = "start"
     },
 
-    startToModule1(){
-      this.destroyAllChildren();
-      this.globalState = "module1";
-    },
-
-    startToModule3(){
-      this.destroyAllChildren();
-      this.globalState = "module3";
-    },
-
     toModule1(pixels){
       this.destroyAllChildren();
-      this.pixels = pixels;
       this.globalState = "module1";
     },
 
     toModule2(scene){
       this.destroyAllChildren();
-      this.scene = scene;
       this.globalState = "module2";
+    },
+
+    toModule3(){
+      this.destroyAllChildren();
+      this.globalState = "module3";
     },
 
     toModule4(scene){
       this.destroyAllChildren();
-      this.scene = scene;
       this.globalState = "module4";
     },
 
     toModule5(pixels){
       this.destroyAllChildren();
-      this.pixels = pixels;
       this.globalState = "module5";
     },
 
@@ -248,7 +234,6 @@ export default {
   margin-left:auto;
   margin-right:auto;
 
-  background-color: #c5e6f0;
 }
 
 .menuButton:hover {

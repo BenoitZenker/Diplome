@@ -52,7 +52,8 @@
 	    		this.sketch.clear();
 		      	this.sketch.background('rgba(255,255,255, 0.5)');	
 
-	    		this.drawImage();  
+	    		this.drawImage(); 
+	    		//console.log(this.pixels)
 	    	},
 
 

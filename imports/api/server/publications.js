@@ -1,23 +1,17 @@
-Meteor.publish('Scenes', function() {
-	return Scenes.find().cursor;
+Meteor.publish('Scenes', function(id) {
+	//console.log("server subscribtion to scene", Scenes.findOne())
+	return Scenes.find({created_by:id});
+});
+
+Meteor.publish('Images', function(id) {
+	console.log("userID:", id);
+	console.log("server subscribtion to image", Images.findOne({created_by:id}))
+	return Images.find({created_by:id});
 });
 
 
-
-//old
-Meteor.publish('LSystems', function () {
-	return LSystems.find({});
+Meteor.publish('Texts', function(id) {
+	//console.log("server subscribtion to texts", Texts.findOne())
+	return Texts.find({created_by:id});
 });
 
-Meteor.publish('Users', function() {
-	if(Meteor.user().profile.role === 'admin')
-		return Meteor.users.find({});
-});
-
-Meteor.publish('JSONCollection', function() {
-	return JSONCollection.find().cursor;
-});
-
-Meteor.publish('BitmapCollection', function() {
-	return BitmapCollection.find().cursor;
-});

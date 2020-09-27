@@ -58,6 +58,10 @@
 
 			updateCanvas(){
 
+				this.pixels = new Array(this.res);
+			    for (let i = 0; i<this.res;i++)
+			      this.pixels[i] = new Array(this.res);
+
 				let ctx = this.cv.getContext('2d');
 
 				//display
@@ -67,10 +71,12 @@
 
 
 			    //les pixels
-				let x = 0;
-				let y = 0;
+				let x = this.canvasDimensions/2;
+				let y = this.canvasDimensions/2;
 				let dir = 0;
 				let nodes = [];
+
+				let light = 50;
 
 				for (var i = 0; i < this.text.length; i++) {
 					let c = this.text.charAt(i);
@@ -80,6 +86,11 @@
 						x = this.nextX(x, dir);
 						y = this.nextY(y, dir);
 					}	
+
+					else if (c =="<")
+						light = Math.min(light + 10, 80);
+					else if (c == ">")
+						light = Math.max(light-10, 0);
 
 					else {
 	
@@ -94,15 +105,17 @@
 							dir = (dir-1)%4;
 							dir = dir<0?3:dir;
 							alpha = 1;
+							
+							light = light>=80 ? 50 : light+20;
 						}
 
 						//dessin du pixel
 						let code = Math.floor(358 * (c.charCodeAt(0) - 30) / (127 - 30));
-						ctx. fillStyle = 'hsla('+code+',100%,50%, '+alpha+')';
+						ctx. fillStyle = 'hsla('+code+',100%,'+light+'%, '+alpha+')';
 	        			ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
 
 	        			//sauvegarde dans le tableau
-	        			this.pixels[y/this.pixelSize][x/this.pixelSize] = new HSLColor(code, 100, 50)
+	        			this.pixels[y/this.pixelSize][x/this.pixelSize] = new HSLColor(code, 100, light)
 	       			
 						x = this.nextX(x, dir);
 						y = this.nextY(y, dir);

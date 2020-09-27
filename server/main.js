@@ -4,19 +4,15 @@ import { Meteor } from 'meteor/meteor';
 import '/imports/api/Scenes/Scenes.js';
 import '/imports/api/Scenes/methods.js';
 
+import '/imports/api/Images/Images.js';
+import '/imports/api/Images/methods.js';
 
-//old
+import '/imports/api/Texts/Texts.js';
+import '/imports/api/Texts/methods.js';
+
 import '/imports/api/server/publications.js';
 
 import '/imports/api/Users/methods.js';
-
-import '/imports/api/LSystems/LSystems.js';
-import '/imports/api/LSystems/methods.js';
-
-import '/imports/api/JSON/JSON.js';
-import '/imports/api/JSON/methods.js';
-
-import '/imports/api/BitmapCollection.js';
 
 
 

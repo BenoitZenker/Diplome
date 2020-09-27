@@ -80,7 +80,6 @@ ul {
 
 
 .navLeft {
-  font-family: InputBoldItalic, "Courier New", Courier, monospace, sans-serif;
 
   display:block;
   margin-left:10%;
@@ -88,8 +87,6 @@ ul {
 
   margin-top:10px;
 
-  background-color: black;
-  color:white;
   
 }
 
@@ -98,21 +95,23 @@ ul {
   margin-right:10%;
   display:block;
 
-  font-family: InputBoldItalic, "Courier New", Courier, monospace, sans-serif;
 
   margin-top:10px;
 
-  background-color: black;
-  color:white;
 }
 
-.navRight:hover, .navLeft:hover {
-  background-color: grey;
-}
+
 
 #menu {
   z-index: 1000;
   position:fixed;
   background-color:  rgba(255, 255, 255, 0.9);
+}
+
+h1 {
+  margin-left: auto;
+  margin-right:auto;
+  text-align: center;
+  color:  rgba(0, 0, 0, 0.9);
 }
 

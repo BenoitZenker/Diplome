@@ -1,13 +1,15 @@
 <template>
   <div id="Module2" ref="Module2">
 
+
     <div v-if="isMenu" id="menu" :style="menuStyle">
+      <h1>3D 🡒 image (aplatir)</h1>
       <div class="navLeftContainer">
         <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
       </div>
       <div class="navRightContainer">
-        <button class="navRight" type="button"  @click="toModule1" >image -> 3D</button>
-        <button class="navRight" type="button"  @click="toModule5" >décaler l'image</button>
+        <button class="navRight" type="button"  @click="toModule1" >image 🡒 3D</button>
+        <button class="navRight" type="button"  @click="toModule5" >image 🡒 texte</button>
       </div>
     </div>
 
@@ -75,11 +77,17 @@ function rgbToHsl(r1, g1, b1){
     }
   }
 
+  import '/imports/api/Scenes/Scenes.js' 
+
 
   import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
+  import Exporter from 'three/examples/jsm/exporters/GLTFExporter.js'
+  import Loader from 'three/examples/jsm/loaders/GLTFLoader.js'
   import OrbitControls from 'orbit-controls-es6';
-  import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
+
+  
 
 export default {
 
@@ -88,6 +96,7 @@ export default {
 
       isMenu:false,
 
+      scene:Object,
       camera: Object,
       renderer: Object,
       controls: Object,
@@ -96,11 +105,13 @@ export default {
 
       imgDim: 16,
       pixels:Array,
+
+      previousCubes:Array,
+
     }
   },
 
   props: {
-    scene:Object,
     baseDimension:Number,
   },
 
@@ -112,15 +123,24 @@ export default {
     //Changement de composant
     //*******************************************************************
     toModule1:function(){
-      this.$emit('toModule1', this.pixels);
+      this.saveImageToDB();
+      this.$emit('toModule1');
     },
 
     toModule5:function(){
-      this.$emit('toModule5', this.pixels);
+      this.saveImageToDB();
+      this.$emit('toModule5');
     },
 
     toStart:function(){
       this.$emit('toStart')
+    },
+
+    saveImageToDB:function(){
+      Meteor.call('insertImage', {
+        pixels:this.pixels,
+        dim: this.imgDim,
+      });
     },
 
 
@@ -135,11 +155,11 @@ export default {
 
 
     animate:function(){
-      this.controls.update();
-      this.renderer.render( this.scene, this.camera );
-
+      
 
       //update image
+      this.controls.update();
+      this.renderer.render( this.scene, this.camera );
 
        //le canvas de l'image
       let canvasImage = this.$refs.image;
@@ -176,10 +196,44 @@ export default {
             this.pixels[this.imgDim-(y+1)][x] = null;
           }
         }    
+
+
+
       this.id = window.requestAnimationFrame(this.animate);
     },
+
+
+    loadScene:function(jsonData){
+      console.log("loading json", JSON.parse(jsonData));
+
+      //clear previous cubes
+      for (let i=0; i<this.previousCubes.length; i++) {
+        console.log("id",this.previousCubes)
+        this.scene.remove(this.scene.getObjectByName(this.previousCubes[i].id));
+      }
+
+
+      let cubes = JSON.parse(jsonData);
+
+      for (var i = 0; i< cubes.length; i++) {
+
+        let cube = this.cubeGeometry.clone();    
+        cube.translate(cubes[i].x, cubes[i].y, cubes[i].z);
+        let cubeMaterial = new THREE.MeshLambertMaterial( { color: new THREE.Color(cubes[i].color) } );
+        let mesh = new THREE.Mesh( cube, cubeMaterial );
+        mesh.name = cubes[i].id;
+        mesh.hslColors = cubes[i].hslColors;
+        this.scene.add(mesh);
+      }
+
+      //save new cubes
+      this.previousCubes = Array.from(cubes);
+    },
+
+
   },
 
+  
 
   mounted:function() {
     console.log("mounting module2")
@@ -192,20 +246,26 @@ export default {
         this.isMenu = !this.isMenu;
     });
 
+
     //le tableau de pixels
     this.pixels = new Array(this.imgDim);
     for (let i = 0; i<this.imgDim;i++)
       this.pixels[i] = new Array(this.imgDim);
 
-
-    //setup 3D three
+    //le canvas de pixels
     let canvasImage = this.$refs.image;
     canvasImage.width = this.canvasDimensions;
     canvasImage.height = this.canvasDimensions;
 
 
+
+    //setup 3D three
+    this.previousCubes = new Array();
+    this.scene = new THREE.Scene();
+    this.cubeGeometry = new THREE.BoxBufferGeometry();
+
     this.camera =  new THREE.PerspectiveCamera( 80, 1, 1, 1000 );
-    this.camera.position.z = this.imgDim*1.2;
+    this.camera.aspect=1;
     this.controls = new OrbitControls(this.camera,this.$refs.three);
 
     this.renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -213,11 +273,40 @@ export default {
     this.$refs.three.appendChild( this.renderer.domElement );
 
     this.renderer.setSize(this.threeDimensions, this.threeDimensions);
-
     window.addEventListener('resize', this.handleResize);
 
+    //lumières
+    var spotLight = new THREE.SpotLight( 0xffffff );
+    spotLight.position.set( -10, 3, 30, 100 );
+    this.scene.add(spotLight);
+
+    var ambiantLight = new THREE.AmbientLight( 0x404040 );
+    this.scene.add(ambiantLight);
+     
+    this.camera.position.z = this.imgDim*1.2;
+     
     //lance l'animation // est-ce qu'il y a vraiment besoin d'animer d'ailleurs??
     this.id = window.requestAnimationFrame( this.animate);
+
+
+
+
+    //souscription à la base de données des scenes
+    Meteor.subscribe('Scenes', Meteor.userId(), ()=>{
+      let scene = Scenes.findOne({}, {sort:{created_at:-1, limit:1}}).scene
+      if (scene)
+        this.loadScene(scene);
+    })
+
+    //callback quand la scène est updatée
+    var now = new Date();
+    Scenes.find({created_at : {$gt:now}}).observe({
+      added:(newScene)=>{
+        console.log("nouvelle scène dans la bdd", this.scene)
+        this.loadScene(newScene.scene);       
+      },
+    })
+
   },
 
 
@@ -227,6 +316,7 @@ export default {
     window.cancelAnimationFrame(this.id);
     this.id = undefined;
   },
+
 
   computed:{
 

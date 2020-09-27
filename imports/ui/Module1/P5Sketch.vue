@@ -45,7 +45,6 @@
 	  		imgDim:Number,
 	  		width:Number,
 	  		height:Number,
-	  		pixelsProps:Array,
 	  	},
 
 	  	mounted:function(){
@@ -98,21 +97,9 @@
 
 		      	//*********************************************//
 		      	//setup image
-		      	//*********************************************//
-		      	if (this.pixelsProps) {
-		      		this.pixels = this.pixelsProps;
-		      		console.log(this.pixels);
-		      	}
-		      		
-
-		      	else {
-		      		this.pixels = [];
-				    for (let i =0; i< this.imgDim; i++){
-				    	this.pixels[i] = []
-				      	for (let j=0; j<this.imgDim; j++)
-				      		this.pixels[i][j] = null;
-				    }
-		      	}
+		      	this.pixels = new Array(this.imgDim);
+    				for (let i = 0; i<this.imgDim;i++)
+      					this.pixels[i] = new Array(this.imgDim);
 			    
 	    	},
 
@@ -157,6 +144,7 @@
 				for (let y =0; y< this.imgDim; y++){
 		      		for (let x=0; x<this.imgDim; x++) {
 		      			let c = this.pixels[y][x];
+		      			//console.log(c);	
 		      			if (c) {
 		      				//console.log(c)
 		      				sketch.fill(sketch.color('hsl('+c.h+','+c.s+'%,'+c.l+'%)'))
@@ -211,6 +199,10 @@
 		    		}
 	    		}
 	    		
+	    	},
+
+	    	addPixel(x, y, clr){
+	    		this.pixels[y][x] = new HSLColor(clr.h, clr.s, clr.l);
 	    	},
 
 

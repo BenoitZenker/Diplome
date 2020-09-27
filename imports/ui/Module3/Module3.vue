@@ -2,12 +2,13 @@
   <div id="Module3" ref="Module3">
 
     <div v-if="isMenu" id="menu" :style="menuStyle">
+      <h1>texte 🡒 image</h1>
       <div class="navLeftContainer">
         <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
       </div>
       <div class="navRightContainer">
-        <button class="navRight" type="button"  @click="toModule1" >Image -> 3D</button>
-        <button class="navRight" type="button"  @click="toModule5" >Décaler l'image</button>
+        <button class="navRight" type="button"  @click="toModule1" >image 🡒 3D</button>
+        <button class="navRight" type="button"  @click="toModule5" >image 🡒 texte</button>
       </div>
     </div>
 
@@ -25,6 +26,8 @@
 
   import GLOBAL from '/imports/ui/GLOBAL.js';
   import Canvas from '/imports/ui/Module3/Canvas.vue'
+
+  import '/imports/api/Texts/Texts.js'
 
   export default {
 
@@ -44,6 +47,24 @@
 
     mounted:function() {
       console.log("monting module3")
+
+    //subscribe
+    Meteor.subscribe('Texts', Meteor.userId(), ()=>{
+      let txt = Texts.findOne({}, {sort:{created_at:-1, limit:1}}).txt;
+      console.log("latest txt", txt)
+      if (txt)
+        this.text = txt;
+    })
+
+     //observe changes
+    var now = new Date();
+    Texts.find({created_at : {$gt:now}}).observe({
+      added:(txt)=>{
+        console.log("text added", txt.txt);
+        this.text = txt.txt; 
+      },
+    })
+
 
       //listener du clavier
       this.isMenu = false;
@@ -65,10 +86,12 @@
       //Changement de composant
       //*******************************************************************
       toModule1:function(){
+        this.saveImageToDB();
         this.$emit('toModule1', this.$refs.Canvas.pixels);
       },
 
       toModule5:function(){
+        this.saveImageToDB();
         this.$emit('toModule5', this.$refs.Canvas.pixels);
       },
 
@@ -76,13 +99,14 @@
         this.$emit('toStart')
       },
 
+      saveImageToDB:function(){
+        console.log("saving px", this.$refs.Canvas.pixels)
+        Meteor.call('insertImage', {
+          pixels:this.$refs.Canvas.pixels,
+          dim: this.imgDim,
+      });
+    }
 
-
-      setLSystem(elem){
-        this.text = elem.expr;
-        this.nb = elem.nb;
-        this.rules = elem.rules.slice(0); //copie du tableau
-      },
     },
 
 
@@ -95,7 +119,7 @@
         return this.baseDimension*2 - GLOBAL.MARGIN*2;
       },
       textAreaWidth(){
-        return this.baseDimension - GLOBAL.MARGIN*2;
+        return this.baseDimension*2 - GLOBAL.MARGIN*2;
       },
       textAreaHeight(){
         return this.baseDimension*2 - GLOBAL.MARGIN*2;
@@ -103,7 +127,7 @@
 
       canvasStyle(){
         return{
-          'margin-left': this.baseDimension*1.5+GLOBAL.MARGIN+'px',
+          'right': GLOBAL.MARGIN+'px',
           'width': this.canvasWidth+'px',
           'height': this.canvasHeight+'px',
           'top':GLOBAL.MARGIN+'px',
@@ -150,7 +174,7 @@
     font-size: 22px;
     margin-bottom: 8px;
     padding:4px;
-    background-color: rgba(255, 255, 255, .8);  
+    background-color: rgba(255, 255, 255, .5);  
   }
 
 

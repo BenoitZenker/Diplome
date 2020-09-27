@@ -3,17 +3,19 @@
  
 
 
+
     <div v-if="isMenu" id="menu" :style="menuStyle">
+      <h1>image 🡒 3D</h1>
       <div class="navLeftContainer">
         <button class="navLeft" type="button"  @click="toStart" >Retour au menu</button>
       </div>
       <div class="navRightContainer">
-        <button class="navRight" type="button"  @click="toModule2" >3D -> Image</button>
-        <button class="navRight" type="button"  @click="toModule4" >éclater la 3D</button>
+        <button class="navRight" type="button"  @click="toModule2" >3D 🡒 image (aplatir)</button>
+        <button class="navRight" type="button"  @click="toModule4" >3D 🡒 image (exploser)</button>
       </div>
     </div>
 
-    <P5Sketch id ="sketch" ref ="sketch" :imgDim="imgDim" :width="sketchWidth" :height="sketchHeight" :pixelsProps ="pixels" v-on:add-cubes="addCubes" :style="imageStyle"></P5Sketch>
+    <P5Sketch id ="sketch" ref ="sketch" :imgDim="imgDim" :width="sketchWidth" :height="sketchHeight" v-on:add-cubes="addCubes" :style="imageStyle"></P5Sketch>
     <div :style="threeStyle" ref="three" id="three"></div>
 
 
@@ -25,14 +27,19 @@
 
 <script>
 
+
+  /*
+  observe image
+  save scene
+  */
+
   import GLOBAL from '/imports/ui/GLOBAL.js';
   import THREE from 'three';
-  import Exporter from 'three/examples/jsm/exporters/GLTFExporter.js'
   import OrbitControls from 'orbit-controls-es6';
 
   import P5Sketch from '/imports/ui/Module1/P5Sketch.vue'
 
-  import Scene from '/imports/api/Scenes/Scenes.js'
+  import '/imports/api/Images/Images.js' 
 
 
 
@@ -48,18 +55,21 @@ export default {
       renderer: Object,
       controls: Object,
       cubes: Map,   //une map pour retrouver les cubes facilement
+      saveScene:Array,
+
 
 
       id:undefined, //requestanimationframe
 
       imgDim: 16,
 
+      pixels:Array,
+
     }
   },
 
   props: {
-    baseDimension:Number,
-    pixels:Array,
+    baseDimension:Number,  
   },
 
   meteor:{
@@ -91,11 +101,9 @@ export default {
     //BDD
     //********************************************************************
     saveSceneToDB:function(){
-      console.log("insert scene in db from module 1")
-      var exporter =  new Exporter.GLTFExporter();
-      exporter.parse( this.scene, function ( gltf ) {
-        Meteor.call('insertScene', gltf);
-      });
+      console.log("insert scene in db from module 1", this.scene)
+      console.log("saveScene", this.saveScene)
+      Meteor.call('insertScene', JSON.stringify(this.saveScene));
     },
 
 
@@ -126,15 +134,35 @@ export default {
         mesh.name = id;
         mesh.hslColors = [h,s,l];
         this.scene.add(mesh);
+
+        //sauvegarde du cube pour l'envoi dans la db
+        this.saveScene.push({
+          x:x-this.imgDim/2,
+          y:y-this.imgDim/2,
+          z:z-this.imgDim/2,
+          color:'hsl('+h+','+s+'%,'+l+'%)',
+          id:id,
+          hslColors:[h,s,l],
+        })
       }   
     },
   
+    clearCubes:function(){
 
+      //if (this.cubes.size > 0)
+        for (const [key, value] of this.cubes) {
+          this.scene.remove(this.scene.getObjectByName(key));
+        }
+      //clear cubes map
+      this.cubes.clear();
+      //clear sceneDB
+      this.saveScene = new Array();
+      
+    },
 
 
     handleResize:function(){
       this.renderer.setSize(this.threeWidth, this.threeHeight);
-      //this.camera.aspect=this.threeWidth/this.threeHeight;    //useless
     },
 
     animate:function(){
@@ -180,7 +208,34 @@ export default {
 
       console.log("three js settings done");
     },
+
+    loadPixels:function(px){
+      this.pixels = px;
+
+      //empty p5
+      this.$refs.sketch.clearAllPixels();
+
+
+      //empty cubes and save
+      this.clearCubes();
+
+      //ajout des cubes
+      for (let y =0; y< this.imgDim; y++){
+          for (let x=0; x<this.imgDim; x++) {
+            let c = this.pixels[y][x] 
+
+            if (c) {
+              //ajout à P5
+              this.$refs.sketch.addPixel(x,y,c)
+              
+              //ajout à three et à la bdd scenes
+              this.addCubes(x, this.imgDim-(y+1),c.h, c.s, c.l);
+            }
+          }
+        }
+    },
   },
+
 
   destroyed: function() {
     console.log("Module 1 destroyed");
@@ -192,34 +247,34 @@ export default {
   mounted:function() {
     console.log("mounting module 1");
 
+    this.saveScene = new Array();
+    this.cubes = new Map();
+
+
     //subscribe
-    this.$subscribe('Scenes', []);
+    Meteor.subscribe('Images', Meteor.userId(), ()=>{
+      let px = Images.findOne({}, {sort:{created_at:-1, limit:1}}).img.pixels
+      if (px)
+        this.loadPixels(px);
+    })
 
      //observe changes
-    Scenes.find().observe({
-      added:(scene)=>{
-        console.log("scene added");
+    var now = new Date();
+    Images.find({created_at : {$gt:now}}).observe({
+      added:(img)=>{
+        console.log("image added", img.img);
+        this.loadPixels(img.img.pixels);          
       },
     })
 
-  
-    this.cubes = new Map();
+
+    //le tableau de pixels
+    this.pixels = new Array(this.imgDim);
+    for (let i = 0; i<this.imgDim;i++)
+      this.pixels[i] = new Array(this.imgDim);
 
     //création de la scène 3D
     this.setup3D();
-
-    //si on a des pixels de base on pose les cubes correspondants
-    if (this.pixels){
-      for (let y =0; y< this.imgDim; y++){
-        for (let x=0; x<this.imgDim; x++) {
-          let c = this.pixels[y][x] 
-
-          if (c) {
-            this.addCubes(x, this.imgDim-(y+1),c.h, c.s, c.l);
-          }
-        }
-      }
-    }
 
 
     //listener du clavier
@@ -235,7 +290,7 @@ export default {
   computed:{
     threeStyle:function(){
       return{
-        'left': GLOBAL.MARGIN +'px',
+        'right':GLOBAL.MARGIN + 'px',
         'top': GLOBAL.MARGIN + 'px',
         'width': this.threeWidth +'px',
         'height': this.threeHeight +'px',
@@ -245,7 +300,8 @@ export default {
     imageStyle:function(){
       return{
         //'margin':GLOBAL.MARGIN + 'px',
-        'right':GLOBAL.MARGIN + 'px',
+        
+        'left': GLOBAL.MARGIN +'px',
         'top':GLOBAL.MARGIN + 'px',
         'width': this.imageDimensions +'px',
         'height': this.imageDimensions +'px',

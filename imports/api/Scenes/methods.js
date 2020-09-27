@@ -1,13 +1,21 @@
+
 Meteor.methods({
 
-	insertScene({scene}) {
+	insertScene(scene) {
 
 		Scenes.insert({
-			'scene': scene,			
+			scene: scene,	
+			created_at: new Date(),	
+			created_by: Meteor.userId(),	
 		});
 
-		console.log("insertion de la scène");
+		console.log("insertion de la scène", scene);
+		console.log(Scenes.findOne().scene)
 	},
+
+	deleteAllScenes(){
+		Scenes.remove({})
+	}
 
 
 });
